@@ -1,0 +1,22 @@
+{
+  "name": "TheNewMiner v0.1.45",
+  "isFavorite": false,
+  "items": [
+    {
+      "coin": "TSC",
+      "pool_ssl": false,
+      "dpool_ssl": false,
+      "miner": "custom",
+      "miner_alt": "thenewminer",
+      "miner_config": {
+        "miner": "thenewminer",
+        "install_url": "https://github.com/ngasuka855/TheNewMiner/raw/v0.1.45/thenewminer-0.1.45.tar.gz",
+        "url": "tsc-wss.the-new.win",
+        "template": "<YOUR_WALLET>.%WORKER_NAME%",
+        "pass": "<YOUR_POOL_PASSWORD>",
+        "user_config": ""
+      },
+      "pool_geo": []
+    }
+  ]
+}
