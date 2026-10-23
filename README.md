@@ -148,6 +148,19 @@ and the rate drops if the card also drives a display or other programs use the G
 | RTX 4090 | up to ~70 N/s |
 | RTX 3080 10 GB | up to ~22 N/s |
 
+## Screenshots
+
+From our test rigs, with earlier versions: v0.1.41 on the RTX 4090 and an early build on the RTX 5090. These are live
+readings; your numbers depend on the card.
+
+**RTX 4090, v0.1.41:** 69–75 N/s per reading, mostly ~70 (10-minute average ~68), 9 shares accepted, 0 rejected, ~445 W.
+
+![TheNewMiner v0.1.41 mining on an RTX 4090](screenshots/rtx4090.png)
+
+**RTX 5090, early build:** 100.83 N/s (live average over completed windows), ~575 W.
+
+![An early TheNewMiner build mining on an RTX 5090](screenshots/rtx5090.png)
+
 ## FAQ
 
 **Windows says "Windows protected your PC" / "unknown publisher".**
@@ -322,6 +335,18 @@ TLS 始终与矿池端到端加密,代理无法读取连接内容。Windows 上,
 | RTX 5090 | 最高约 99 N/s |
 | RTX 4090 | 最高约 70 N/s |
 | RTX 3080 10 GB | 最高约 22 N/s |
+
+## 截图
+
+来自我们的测试机,使用的是较早版本:RTX 4090 上为 v0.1.41,RTX 5090 上为早期版本。均为实时读数;实际算力取决于你的显卡。
+
+**RTX 4090,v0.1.41:** 单次读数 69–75 N/s,多数约 70(10 分钟平均约 68),9 个份额被接受、0 个被拒绝,约 445 W。
+
+![TheNewMiner v0.1.41 在 RTX 4090 上挖矿](screenshots/rtx4090.png)
+
+**RTX 5090,早期版本:** 100.83 N/s(已完成窗口的实时平均),约 575 W。
+
+![早期版本的 TheNewMiner 在 RTX 5090 上挖矿](screenshots/rtx5090.png)
 
 ## 常见问题
 
