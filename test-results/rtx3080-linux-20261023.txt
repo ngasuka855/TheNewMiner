@@ -1,0 +1,22 @@
+# TheNewMiner v0.1.44 (Linux package sealed-r4) - RTX 3080 10 GB, native Linux, real pool, 2026-10-23
+# Excerpt of the install output and the miner log (UTC timestamps). Shortened; machine-specific details removed.
+# System: Ubuntu 26.04 LTS, NVIDIA driver 595.99.02, GeForce RTX 3080 (10240 MiB, compute 8.6, 340 W limit), one GPU.
+# Result: install 6/6 steps OK; mined for 1386 s; pace over the last 10 min 21.04 N/s; shares 3 accepted / 0 rejected;
+#         invalid=0 on every closed wave; clean stop (exit status 0).
+
+== install 2026-10-23 06:47:09 UTC ==
+[1/6] Checking this system
+[2/6] The model (8.1 GiB): reused if it is already on this machine, else downloaded once
+[3/6] Installing the GPU engine
+[4/6] Testing the engine on this GPU
+[5/6] GPU calibration (once per card model, remembered)
+[6/6] Final check of the installed files
+== exit 0 ==
+
+== mining (excerpt) ==
+2026-10-23T07:10:48.857669Z  INFO [COMP] TensorCash wave of 4 windows closed in 6.09s: raw=26700 free=3 admission=0 invalid=0 reuse-red=0 eligible=3 hard-run-red=0 max-hard-run=0 | 20.6601 raw / 0.0023 tier-eligible N/s
+2026-10-23T07:11:26.677741Z  INFO [COMP] TensorCash wave of 4 windows closed in 6.08s: raw=27496 free=3 admission=0 invalid=0 reuse-red=0 eligible=3 hard-run-red=0 max-hard-run=0 | 20.6711 raw / 0.0023 tier-eligible N/s
+2026-10-23T07:12:14.246369Z  INFO [COMP] TensorCash wave of 4 windows closed in 6.09s: raw=28496 free=3 admission=0 invalid=0 reuse-red=0 eligible=3 hard-run-red=0 max-hard-run=0 | 20.6833 raw / 0.0022 tier-eligible N/s
+2026-10-23T07:12:22.968390Z  INFO [COMP] Pace: last 10 waves 21.20 N/s | last 10 min 21.04 N/s | 150 s panel 21.04 N/s
+2026-10-23T07:12:27.961382Z  INFO [ MAIN] TensorCash model #0 |    20.61 N/s | 3/0 | raw=28680 free=3 admission=0 invalid=0 reuse-red=0 eligible=3 hard-run-red=0 max-hard-run=0 | 20.6116 raw / 0.0022 tier-eligible N/s | pool connected
+[thenewminer] stopped (exit status: 0)

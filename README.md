@@ -148,6 +148,21 @@ and the rate drops if the card also drives a display or other programs use the G
 | RTX 4090 | up to ~70 N/s |
 | RTX 3080 10 GB | up to ~22 N/s |
 
+## Test results
+
+Real-pool tests of v0.1.44 on our test rigs on 2026-10-23 (one GPU per machine). A = accepted shares, R = rejected
+shares.
+
+| Date | Card | OS | Package | Hashrate | A / R |
+|---|---|---|---|---|---|
+| 2026-10-23 | RTX 4090 | Linux | sealed-r4 | 65.58 N/s (median, 16 min) | 10 / 0 |
+| 2026-10-23 | RTX 5090 | Linux | sealed-r4 | 93.45 N/s (steady mining, 44 min; 90.39 including job changes) | 31 / 0 (+1 stale at stop) |
+| 2026-10-23 | RTX 3080 10 GB | Windows (WSL2) | windows-wsl2-r5 | ~22 N/s (operator's own run) | n/a |
+| 2026-10-23 | RTX 3080 10 GB | Linux (Ubuntu 26.04) | sealed-r4 | 21.04 N/s (last 10 min of 23 min mining) | 3 / 0 |
+
+RTX 3080 on Linux: install 6/6 steps OK, no invalid windows, clean stop. Log excerpt:
+[`test-results/rtx3080-linux-20261023.txt`](test-results/rtx3080-linux-20261023.txt).
+
 ## Screenshots
 
 From our test rigs, with earlier versions: v0.1.41 on the RTX 4090 and an early build on the RTX 5090. These are live
@@ -335,6 +350,20 @@ TLS 始终与矿池端到端加密,代理无法读取连接内容。Windows 上,
 | RTX 5090 | 最高约 99 N/s |
 | RTX 4090 | 最高约 70 N/s |
 | RTX 3080 10 GB | 最高约 22 N/s |
+
+## 测试结果
+
+2026-10-23 在我们的测试机上用 v0.1.44 于真实矿池测试(每台机器一块显卡)。A = 被接受的份额,R = 被拒绝的份额。
+
+| 日期 | 显卡 | 系统 | 安装包 | 算力 | A / R |
+|---|---|---|---|---|---|
+| 2026-10-23 | RTX 4090 | Linux | sealed-r4 | 65.58 N/s(中位数,16 分钟) | 10 / 0 |
+| 2026-10-23 | RTX 5090 | Linux | sealed-r4 | 93.45 N/s(稳定挖矿,44 分钟;含切换任务为 90.39) | 31 / 0(停止时另有 1 个过期份额) |
+| 2026-10-23 | RTX 3080 10 GB | Windows(WSL2) | windows-wsl2-r5 | 约 22 N/s(操作员自测) | 无 |
+| 2026-10-23 | RTX 3080 10 GB | Linux(Ubuntu 26.04) | sealed-r4 | 21.04 N/s(挖矿 23 分钟中的最后 10 分钟) | 3 / 0 |
+
+RTX 3080 Linux:安装 6/6 步全部通过,没有无效窗口,正常停止。日志摘录:
+[`test-results/rtx3080-linux-20261023.txt`](test-results/rtx3080-linux-20261023.txt)。
 
 ## 截图
 
