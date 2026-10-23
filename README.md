@@ -10,3 +10,6 @@ The released downloads are on the `main` branch: https://github.com/ngasuka855/T
 
 - Also here for testing: `thenewminer-0.1.45.tar.gz` (sha256 in `thenewminer-0.1.45.tar.gz.sha256`), Installation URL:
   `https://github.com/ngasuka855/TheNewMiner/raw/hiveos-test/thenewminer-0.1.45.tar.gz`
+
+- Also for testing: `thenewminer-0.1.45.tar.gz` (sha256 in `thenewminer-0.1.45.tar.gz.sha256`), Installation URL:
+  `https://github.com/ngasuka855/TheNewMiner/raw/hiveos-test/thenewminer-0.1.45.tar.gz`
