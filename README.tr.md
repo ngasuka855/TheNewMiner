@@ -221,6 +221,31 @@ mv /tmp/thenewminer-0.1.45.tar.gz /hive/miners/custom/downloads/
 cd /hive/miners/custom && tar -xzf downloads/thenewminer-0.1.45.tar.gz
 ```
 
+## Cüzdanı, havuz parolasını veya worker adını değiştirme
+
+Havuz, her ödeme adresini kalıcı olarak kendi havuz hesabına bağlar: havuz sayfası
+[tsc.the-new.win](https://tsc.the-new.win), TSC ödeme adresini "永久绑定 · 不可修改" (kalıcı olarak bağlı, değiştirilemez)
+olarak tanımlar ve değiştirmek için yeni adresi doğrudan madencide kullanmanızı söyler. Bu nedenle farklı bir cüzdan
+için kendi havuz hesabı ve kendi havuz parolası gerekir (bunları önce havuz sayfasında oluşturun). Havuz parolasını
+havuz sayfasında değiştirirseniz parolayı her madencide güncelleyin. Havuz unutulan bir parolayı kurtaramaz.
+
+**Linux:** madenciyi durdurun, ardından yeni ayarlarla bir kez başlatın; yeni ayarlar hatırlanan ayarların yerini alır:
+
+```bash
+./thenewminer --stop
+./thenewminer -u <NEW_WALLET> -p '<PASSWORD>' -w <RIG_NAME> --background
+```
+
+`-u` ve `-p` seçeneklerini birlikte verin: yalnızca biri tek başına hatırlanan cüzdanı ve parolayı değiştirmez. Worker
+adı tek başına değiştirilebilir: `./thenewminer -w <RIG_NAME> --background` (`--stop` komutundan sonra).
+
+**Windows:** `TheNewMiner.bat setup` çalıştırın. Çalışan madenciyi durdurur ve cüzdanı, havuz parolasını ve worker adını
+yeniden sorar. Ardından madenciyi her zamanki gibi başlatın (`TheNewMiner.bat` dosyasına çift tıklayın).
+
+**HiveOS:** flight sheet'i düzenleyin: yeni cüzdan adresini "Wallet and worker template" alanına
+(`<NEW_WALLET>.%WORKER_NAME%`), yeni havuz parolasını Pass alanına yazın, ardından kaydedip uygulayın. Worker adı,
+rig'in HiveOS'taki adıdır (veya Extra config arguments içinde `-w <RIG_NAME>`).
+
 ## Proxy (isteğe bağlı)
 
 Madenci havuza doğrudan bağlanır. Ağınız bir proxy gerektiriyorsa:

@@ -161,6 +161,23 @@ mv /tmp/thenewminer-0.1.45.tar.gz /hive/miners/custom/downloads/
 cd /hive/miners/custom && tar -xzf downloads/thenewminer-0.1.45.tar.gz
 ```
 
+## 更換錢包、礦池密碼或礦工名稱
+
+礦池會將每個收款地址永久綁定到它自己的礦池帳戶：礦池頁面 [tsc.the-new.win](https://tsc.the-new.win) 將 TSC 收款地址標示為「永久绑定 · 不可修改」（永久綁定，不可修改），並說明若要更換，請直接在挖礦程式中使用新地址。因此，改用另一個錢包需要它自己的礦池帳戶和礦池密碼（請先在礦池頁面上設定好）。如果你在礦池頁面上變更了礦池密碼，請在每個挖礦程式中都更新它。礦池無法找回忘記的密碼。
+
+**Linux**：先停止挖礦程式，然後用新設定啟動一次；新設定會取代已記住的設定：
+
+```bash
+./thenewminer --stop
+./thenewminer -u <NEW_WALLET> -p '<PASSWORD>' -w <RIG_NAME> --background
+```
+
+`-u` 和 `-p` 必須一起提供：只提供其中一個不會變更已記住的錢包和密碼。礦工名稱可以單獨變更：`./thenewminer -w <RIG_NAME> --background`（在 `--stop` 之後）。
+
+**Windows**：執行 `TheNewMiner.bat setup`。它會停止正在執行的挖礦程式，並重新詢問錢包、礦池密碼和礦工名稱。然後照常啟動（按兩下 `TheNewMiner.bat`）。
+
+**HiveOS**：編輯 flight sheet：在「Wallet and worker template」中填入新的錢包地址（`<NEW_WALLET>.%WORKER_NAME%`），在 Pass 中填入新的礦池密碼，然後儲存並套用。礦工名稱就是該礦機在 HiveOS 中的名稱（或在 Extra config arguments 中使用 `-w <RIG_NAME>`）。
+
 ## 代理伺服器（選用）
 
 挖礦程式會直接連線到礦池。如果你的網路需要使用代理伺服器：

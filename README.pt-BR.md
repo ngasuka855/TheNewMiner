@@ -222,6 +222,32 @@ mv /tmp/thenewminer-0.1.45.tar.gz /hive/miners/custom/downloads/
 cd /hive/miners/custom && tar -xzf downloads/thenewminer-0.1.45.tar.gz
 ```
 
+## Trocar a carteira, a senha da pool ou o nome do worker
+
+A pool vincula de forma permanente cada endereço de pagamento à sua própria conta na pool: a página da pool
+[tsc.the-new.win](https://tsc.the-new.win) descreve o endereço de pagamento de TSC como "永久绑定 · 不可修改" (vinculado
+permanentemente, não pode ser modificado) e orienta que, para trocar, você use o novo endereço diretamente no minerador.
+Por isso, uma carteira diferente precisa da sua própria conta na pool e da sua própria senha da pool (crie-as primeiro
+na página da pool). Se você trocar a senha da pool na página da pool, atualize-a em todos os mineradores. A pool não
+consegue recuperar uma senha esquecida.
+
+**Linux:** pare o minerador e depois inicie-o uma vez com as novas configurações; elas substituem as que estavam salvas:
+
+```bash
+./thenewminer --stop
+./thenewminer -u <NEW_WALLET> -p '<PASSWORD>' -w <RIG_NAME> --background
+```
+
+Informe `-u` e `-p` juntos: apenas um deles não altera a carteira e a senha salvas. O nome do worker pode ser trocado
+sozinho: `./thenewminer -w <RIG_NAME> --background` (depois de `--stop`).
+
+**Windows:** execute `TheNewMiner.bat setup`. Ele para o minerador em execução e pede de novo a carteira, a senha da
+pool e o nome do worker. Depois, inicie-o como de costume (clique duas vezes em `TheNewMiner.bat`).
+
+**HiveOS:** edite a flight sheet: coloque o novo endereço da carteira em "Wallet and worker template"
+(`<NEW_WALLET>.%WORKER_NAME%`) e a nova senha da pool em Pass, depois salve e aplique-a. O nome do worker é o nome do
+rig no HiveOS (ou `-w <RIG_NAME>` em Extra config arguments).
+
 ## Proxy (opcional)
 
 O minerador se conecta diretamente à pool. Se a sua rede precisar de um proxy:

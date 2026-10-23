@@ -210,6 +210,31 @@ mv /tmp/thenewminer-0.1.45.tar.gz /hive/miners/custom/downloads/
 cd /hive/miners/custom && tar -xzf downloads/thenewminer-0.1.45.tar.gz
 ```
 
+## Change your wallet, pool password or worker name
+
+The pool binds each payout address to its own pool account for good: the pool page
+[tsc.the-new.win](https://tsc.the-new.win) calls the TSC payout address "永久绑定 · 不可修改" (permanently bound, cannot be
+modified) and says to switch by using the new address directly on the miner. A different wallet therefore needs its
+own pool account and pool password (set them up on the pool page first). If you change the pool password on the pool
+page, update it on every miner. The pool cannot recover a forgotten password.
+
+**Linux:** stop the miner, then start it once with the new settings; they replace the remembered ones:
+
+```bash
+./thenewminer --stop
+./thenewminer -u <NEW_WALLET> -p '<PASSWORD>' -w <RIG_NAME> --background
+```
+
+Give `-u` and `-p` together: one of them alone does not change the remembered wallet and password. The worker name can
+be changed on its own: `./thenewminer -w <RIG_NAME> --background` (after `--stop`).
+
+**Windows:** run `TheNewMiner.bat setup`. It stops the running miner and asks again for the wallet, the pool password
+and the worker name. Then start it as usual (double-click `TheNewMiner.bat`).
+
+**HiveOS:** edit the flight sheet: put the new wallet address in "Wallet and worker template"
+(`<NEW_WALLET>.%WORKER_NAME%`) and the new pool password in Pass, then save and apply it. The worker name is the rig's
+name in HiveOS (or `-w <RIG_NAME>` in the extra config arguments).
+
 ## Proxy (optional)
 
 The miner connects to the pool directly. If your network needs a proxy:

@@ -161,6 +161,23 @@ mv /tmp/thenewminer-0.1.45.tar.gz /hive/miners/custom/downloads/
 cd /hive/miners/custom && tar -xzf downloads/thenewminer-0.1.45.tar.gz
 ```
 
+## ウォレット、プールパスワード、ワーカー名の変更
+
+プールは各支払いアドレスを、そのアドレス専用のプールアカウントに恒久的に紐付けます。プールのページ [tsc.the-new.win](https://tsc.the-new.win) は TSC の支払いアドレスを「永久绑定 · 不可修改」(永久に紐付け済み、変更不可) と記載し、切り替えるにはマイナーで新しいアドレスを直接使うよう案内しています。したがって、別のウォレットにはそのウォレット専用のプールアカウントとプールパスワードが必要です (先にプールのページで作成してください)。プールのページでプールパスワードを変更した場合は、すべてのマイナーでパスワードを更新してください。プールは忘れたパスワードを復元できません。
+
+**Linux:** マイナーを停止してから、新しい設定で一度起動します。新しい設定が、記憶されている設定に置き換わります:
+
+```bash
+./thenewminer --stop
+./thenewminer -u <NEW_WALLET> -p '<PASSWORD>' -w <RIG_NAME> --background
+```
+
+`-u` と `-p` は必ず一緒に指定してください。どちらか一方だけでは、記憶されているウォレットとパスワードは変更されません。ワーカー名は単独で変更できます: `./thenewminer -w <RIG_NAME> --background` (`--stop` の後で)。
+
+**Windows:** `TheNewMiner.bat setup` を実行します。実行中のマイナーを停止し、ウォレット、プールパスワード、ワーカー名をもう一度尋ねます。その後、いつもどおり起動します (`TheNewMiner.bat` をダブルクリック)。
+
+**HiveOS:** フライトシートを編集します。"Wallet and worker template" に新しいウォレットアドレス (`<NEW_WALLET>.%WORKER_NAME%`) を、Pass に新しいプールパスワードを入力し、保存して適用します。ワーカー名は HiveOS でのリグ名です (または Extra config arguments の `-w <RIG_NAME>`)。
+
 ## プロキシ (任意)
 
 マイナーはプールに直接接続します。ネットワークでプロキシが必要な場合:

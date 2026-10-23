@@ -213,6 +213,31 @@ mv /tmp/thenewminer-0.1.45.tar.gz /hive/miners/custom/downloads/
 cd /hive/miners/custom && tar -xzf downloads/thenewminer-0.1.45.tar.gz
 ```
 
+## Đổi ví, mật khẩu pool hoặc tên worker
+
+Pool gắn vĩnh viễn mỗi địa chỉ nhận thanh toán với tài khoản pool riêng của nó: trang pool
+[tsc.the-new.win](https://tsc.the-new.win) ghi địa chỉ nhận thanh toán TSC là "永久绑定 · 不可修改" (gắn vĩnh viễn, không thể
+sửa đổi) và hướng dẫn rằng muốn đổi thì dùng trực tiếp địa chỉ mới trên miner. Vì vậy, một ví khác cần có tài khoản pool
+và mật khẩu pool riêng (hãy tạo chúng trên trang pool trước). Nếu bạn đổi mật khẩu pool trên trang pool, hãy cập nhật
+mật khẩu đó trên mọi miner. Pool không thể khôi phục mật khẩu đã quên.
+
+**Linux:** dừng miner, rồi khởi động nó một lần với cài đặt mới; cài đặt mới sẽ thay thế cài đặt đã được ghi nhớ:
+
+```bash
+./thenewminer --stop
+./thenewminer -u <NEW_WALLET> -p '<PASSWORD>' -w <RIG_NAME> --background
+```
+
+Hãy đưa `-u` và `-p` cùng lúc: chỉ đưa một trong hai thì ví và mật khẩu đã được ghi nhớ sẽ không thay đổi. Tên worker có
+thể đổi riêng: `./thenewminer -w <RIG_NAME> --background` (sau `--stop`).
+
+**Windows:** chạy `TheNewMiner.bat setup`. Lệnh này dừng miner đang chạy và hỏi lại ví, mật khẩu pool và tên worker. Sau
+đó khởi động như thường lệ (nhấp đúp vào `TheNewMiner.bat`).
+
+**HiveOS:** sửa flight sheet: điền địa chỉ ví mới vào "Wallet and worker template" (`<NEW_WALLET>.%WORKER_NAME%`) và mật
+khẩu pool mới vào Pass, rồi lưu và áp dụng. Tên worker là tên của rig trong HiveOS (hoặc `-w <RIG_NAME>` trong Extra
+config arguments).
+
 ## Proxy (tùy chọn)
 
 Miner kết nối trực tiếp tới pool. Nếu mạng của bạn cần proxy:

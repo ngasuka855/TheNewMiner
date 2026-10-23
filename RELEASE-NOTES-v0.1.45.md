@@ -66,6 +66,12 @@ folder: `./thenewminer --stop` there, unpack the new package in the same place, 
 - Driver (as root): `nvidia-driver-update --list`, then for example `nvidia-driver-update 595`, then `sreboot`.
 
 
+## Change your wallet, pool password or worker name
+
+See "Change your wallet, pool password or worker name" on https://github.com/ngasuka855/TheNewMiner (Linux: `--stop`,
+then start once with the new `-u`, `-p` and `-w`; Windows: `TheNewMiner.bat setup`; HiveOS: edit the flight sheet). The
+payout address is permanently bound to its pool account: a different wallet needs its own pool account and password.
+
 ## NVIDIA driver 580 or newer
 
 The miner needs driver **580 or newer**. Check with `nvidia-smi` ("Driver Version" in the header).
@@ -154,6 +160,10 @@ mkdir -p ~/thenewminer-download && cd ~/thenewminer-download && V=v0.1.45 && P=T
 - 矿机无法访问 GitHub？在电脑上下载 `thenewminer-0.1.45.tar.gz`，复制到矿机并解压到 `/hive/miners/custom/`（步骤见发布页）；之后 HiveOS 会显示 "Already installed"。
 - 驱动（以 root 运行）：`nvidia-driver-update --list`，然后例如 `nvidia-driver-update 595`，再执行 `sreboot`。
 
+
+## 更换钱包、矿池密码或矿工名
+
+参见 https://github.com/ngasuka855/TheNewMiner 中的 "Change your wallet, pool password or worker name"（Linux：先 `--stop`，再用新的 `-u`、`-p` 和 `-w` 启动一次；Windows：`TheNewMiner.bat setup`；HiveOS：修改 flight sheet）。收款地址与其矿池账户永久绑定：换用其他钱包需要该钱包自己的矿池账户和密码。
 
 ## NVIDIA 驱动 580 或更新
 

@@ -232,6 +232,33 @@ mv /tmp/thenewminer-0.1.45.tar.gz /hive/miners/custom/downloads/
 cd /hive/miners/custom && tar -xzf downloads/thenewminer-0.1.45.tar.gz
 ```
 
+## Changer de portefeuille, de mot de passe du pool ou de nom de worker
+
+Le pool lie définitivement chaque adresse de paiement à son propre compte sur le pool : la page du pool
+[tsc.the-new.win](https://tsc.the-new.win) qualifie l'adresse de paiement TSC de « 永久绑定 · 不可修改 » (liée définitivement,
+non modifiable) et indique que, pour en changer, il faut utiliser directement la nouvelle adresse dans le mineur. Un
+autre portefeuille nécessite donc son propre compte sur le pool et son propre mot de passe du pool (créez-les d'abord
+sur la page du pool). Si vous changez le mot de passe du pool sur la page du pool, mettez-le à jour sur chaque mineur.
+Le pool ne peut pas récupérer un mot de passe oublié.
+
+**Linux :** arrêtez le mineur, puis démarrez-le une fois avec les nouveaux paramètres, qui remplacent les paramètres
+mémorisés :
+
+```bash
+./thenewminer --stop
+./thenewminer -u <NEW_WALLET> -p '<PASSWORD>' -w <RIG_NAME> --background
+```
+
+Indiquez `-u` et `-p` ensemble : l'un des deux seul ne change pas le portefeuille et le mot de passe mémorisés. Le nom
+du worker peut être changé seul : `./thenewminer -w <RIG_NAME> --background` (après `--stop`).
+
+**Windows :** exécutez `TheNewMiner.bat setup`. Il arrête le mineur en cours d'exécution et redemande le portefeuille,
+le mot de passe du pool et le nom du worker. Démarrez-le ensuite comme d'habitude (double-clic sur `TheNewMiner.bat`).
+
+**HiveOS :** modifiez la flight sheet : mettez la nouvelle adresse du portefeuille dans « Wallet and worker template »
+(`<NEW_WALLET>.%WORKER_NAME%`) et le nouveau mot de passe du pool dans Pass, puis enregistrez-la et appliquez-la. Le nom
+du worker est le nom du rig dans HiveOS (ou `-w <RIG_NAME>` dans Extra config arguments).
+
 ## Proxy (facultatif)
 
 Le mineur se connecte directement au pool. Si votre réseau nécessite un proxy :

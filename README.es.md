@@ -220,6 +220,33 @@ mv /tmp/thenewminer-0.1.45.tar.gz /hive/miners/custom/downloads/
 cd /hive/miners/custom && tar -xzf downloads/thenewminer-0.1.45.tar.gz
 ```
 
+## Cambiar la billetera, la contraseña del pool o el nombre del worker
+
+El pool vincula de forma permanente cada dirección de pago a su propia cuenta del pool: la página del pool
+[tsc.the-new.win](https://tsc.the-new.win) describe la dirección de pago de TSC como "永久绑定 · 不可修改" (vinculada
+permanentemente, no se puede modificar) e indica que, para cambiarla, uses la nueva dirección directamente en el minero.
+Por lo tanto, otra billetera necesita su propia cuenta del pool y su propia contraseña del pool (créalas primero en la
+página del pool). Si cambias la contraseña del pool en la página del pool, actualízala en todos tus mineros. El pool no
+puede recuperar una contraseña olvidada.
+
+**Linux:** detén el minero y luego inícialo una vez con la nueva configuración; esta reemplaza la configuración
+recordada:
+
+```bash
+./thenewminer --stop
+./thenewminer -u <NEW_WALLET> -p '<PASSWORD>' -w <RIG_NAME> --background
+```
+
+Indica `-u` y `-p` juntos: uno solo de ellos no cambia la billetera ni la contraseña recordadas. El nombre del worker se
+puede cambiar por separado: `./thenewminer -w <RIG_NAME> --background` (después de `--stop`).
+
+**Windows:** ejecuta `TheNewMiner.bat setup`. Detiene el minero en ejecución y vuelve a pedir la billetera, la
+contraseña del pool y el nombre del worker. Luego inícialo como siempre (doble clic en `TheNewMiner.bat`).
+
+**HiveOS:** edita el flight sheet: pon la nueva dirección de la billetera en "Wallet and worker template"
+(`<NEW_WALLET>.%WORKER_NAME%`) y la nueva contraseña del pool en Pass; luego guárdalo y aplícalo. El nombre del worker
+es el nombre del rig en HiveOS (o `-w <RIG_NAME>` en Extra config arguments).
+
 ## Proxy (opcional)
 
 El minero se conecta al pool directamente. Si tu red necesita un proxy:

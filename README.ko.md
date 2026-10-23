@@ -212,6 +212,31 @@ mv /tmp/thenewminer-0.1.45.tar.gz /hive/miners/custom/downloads/
 cd /hive/miners/custom && tar -xzf downloads/thenewminer-0.1.45.tar.gz
 ```
 
+## 지갑, 풀 비밀번호 또는 워커 이름 변경
+
+풀은 각 지급 주소를 그 주소 전용 풀 계정에 영구적으로 묶습니다. 풀 페이지 [tsc.the-new.win](https://tsc.the-new.win)은
+TSC 지급 주소를 "永久绑定 · 不可修改" (영구 바인딩, 수정 불가)라고 표시하며, 바꾸려면 채굴기에서 새 주소를 직접
+사용하라고 안내합니다. 따라서 다른 지갑에는 그 지갑 전용 풀 계정과 풀 비밀번호가 필요합니다 (먼저 풀 페이지에서 만들어
+두세요). 풀 페이지에서 풀 비밀번호를 바꾸면 모든 채굴기에서 비밀번호를 업데이트하세요. 풀은 잊어버린 비밀번호를 복구할
+수 없습니다.
+
+**Linux:** 채굴기를 중지한 다음, 새 설정으로 한 번 시작하세요. 새 설정이 기억된 설정을 대체합니다:
+
+```bash
+./thenewminer --stop
+./thenewminer -u <NEW_WALLET> -p '<PASSWORD>' -w <RIG_NAME> --background
+```
+
+`-u`와 `-p`는 반드시 함께 지정하세요. 둘 중 하나만 지정하면 기억된 지갑과 비밀번호가 바뀌지 않습니다. 워커 이름은 따로
+바꿀 수 있습니다: `./thenewminer -w <RIG_NAME> --background` (`--stop` 후에).
+
+**Windows:** `TheNewMiner.bat setup`을 실행하세요. 실행 중인 채굴기를 중지하고 지갑, 풀 비밀번호, 워커 이름을 다시
+묻습니다. 그런 다음 평소처럼 시작하세요 (`TheNewMiner.bat`을 더블 클릭).
+
+**HiveOS:** 플라이트 시트를 편집하세요. "Wallet and worker template"에 새 지갑 주소를 (`<NEW_WALLET>.%WORKER_NAME%`),
+Pass에 새 풀 비밀번호를 넣은 다음 저장하고 적용하세요. 워커 이름은 HiveOS의 리그 이름입니다 (또는 Extra config
+arguments의 `-w <RIG_NAME>`).
+
 ## 프록시 (선택 사항)
 
 채굴기는 풀에 직접 연결합니다. 네트워크에 프록시가 필요하다면:
