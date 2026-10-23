@@ -8,33 +8,50 @@ TheNewMiner, **TensorCash** için bir GPU madencisidir. **10 GB veya daha fazla 
 ve 50 serisi kartlarda çalışır ve yerleşik olarak gelen **`tsc-wss.the-new.win`** havuzunda kazım yapar: havuz adresi
 girmeniz gerekmez, doğrudan bağlanır.
 
-Güncel sürüm: **v0.1.45**
+Güncel sürüm: **v0.1.46** · Havuz web sitesi: [tsc.the-new.win](https://tsc.the-new.win/#/home)
 
-## v0.1.45'teki yenilikler
+## Başlamadan önce: havuz hesabınızı oluşturun
 
-- **Havuz cüzdanınızı veya parolanızı reddettiğinde açık bir mesaj.** Madenci bunu tek satırla bildirir ve yeniden
-  denemek yerine durur; `--status` nedenini gösterir. Cüzdanı ve parolayı kontrol edin, ardından `-u` ve `-p` ile
-  yeniden başlatın.
-- **Cüzdanınız ve parolanız artık `ps` çıktısında** veya diğer kullanıcıların işlem listelerinde görünmez.
-- **`./thenewminer --status`** kazım yapılıp yapılmadığını, ne zamandan beri yapıldığını, son hashrate değerini ve kabul edilen / reddedilen share'leri gösterir.
-- **HiveOS desteği (deneysel):** bir HiveOS custom miner paketi ve içe aktarılabilir bir flight sheet (aşağıdaki HiveOS bölümüne bakın).
-- **Güvenli güncellemeler:** eski sürüm hâlâ kazım yaparken yeni sürüm başlamayı reddeder (önce eskisini durdurmanızı
-  söyler); `--stop` sonrasında program dosyalarını kendiliğinden yeniden kurar, ayarlarınızı ve modeli korur.
-- **`--background`, madenci hemen sona erdiğinde artık "başladı" demez**; bunun yerine nedenini gösterir.
-- **Docker ve küçük paylaşılan bellek:** bellek içi klasör çok küçükse (Docker'ın varsayılanı 64 MiB) veya program
-  çalıştırmaya izin vermiyorsa, madenci bunun yerine diskteki `thenewminer/.miner/run/` klasörünü kullanır ve bunu bildirir.
-- **Havuz parolaları artık herhangi bir görünür karakteri içerebilir** (noktalama işaretleri ve İngilizce dışı harfler
-  de dahil): 6–128 karakter, boşluksuz.
-- Daha fazla Linux sistemi: kurulum programı artık yalnızca birkaç Ubuntu sürümünü kabul etmek yerine ihtiyaç duyduğu
-  şeyi (glibc 2.34 veya daha yeni) denetler.
+Kazım için bir havuz hesabı gerekir: TSC ödeme adresiniz (cüzdan) ve havuz web sitesinde seçtiğiniz bir havuz parolası.
+Sitenin İngilizce bir sürümü vardır (dil menüsünü kullanın).
+
+1. [tsc.the-new.win](https://tsc.the-new.win/#/home) adresini açın ve **Start mining** (开始挖矿) bölümüne gidin.
+2. **1. Bind Wallet** altında **TSC payout address** alanına ödeme adresinizi girin (`tc1...`; dikkatle kontrol edin:
+   yanlış bir adrese gönderilen kazım geliri geri alınamaz), bir **Pool Password** seçin (6–128 karakter) ve bunu
+   **Confirm Password** altına yeniden girin.
+3. **Apply to join pool** düğmesine tıklayın. Sayfa, cüzdanın bağlandığını onaylar; hesap hemen kullanılabilir.
+4. Madencide aynı cüzdanı ve parolayı kullanın: Linux'ta `-u <YOUR_WALLET> -p '<YOUR_POOL_PASSWORD>'`, Windows'ta
+   `TheNewMiner.bat` dosyasının soruları, HiveOS'ta ise flight sheet. Başlattıktan yaklaşık 3–5 dakika sonra rig'iniz
+   havuz web sitesinde **My Miners** altında görünür.
+
+Havuz, unutulan bir havuz parolasını kurtaramaz ve ödeme adresi daha sonra değiştirilemez. Havuz parolası cüzdanınızın
+özel anahtarı değildir: özel anahtarınızı asla kimseye vermeyin.
+
+## v0.1.46'teki yenilikler
+
+- **RTX 30 serisi kartlarda ve HiveOS'ta ilk başlatmada daha az hata.** Tek seferlik GPU denetimi artık desteklenen her
+  kart ailesi için önceden derlenmiş GPU kodu kullanır ve kurulum sırasında zaten bir kez çalışır; GPU derleme önbelleği
+  başlatmalar ve güncellemeler arasında korunur. Denetim bir RTX 30 serisi kartta yine de zaman aşımına uğrarsa madenci
+  bu adımı bunun yerine CPU'da yapar ve madenciliğe devam eder. Kartın yapılandırması hazırlanamazsa madenci nedenini
+  tek bir `Reason:` satırında bildirir (çıkış kodu 78).
+- **HiveOS:** madenci ilk başlatmada GPU için yapılandırmasını hazırlayamadığında (çıkış kodu 78) rig artık birkaç
+  saniyede bir yeniden başlamak yerine giderek uzayan aralarla (bir ila on dakika) bekleyip yeniden dener.
+- **Daha düzgün dalgalar:** havuzun checkpoint'i bir dalganın ortasında değiştiğinde, sonraki dalganın işi artık arka
+  planda yeniden hazırlanır. Bir RTX 5090'da bu, o andaki beklemeleri ortadan kaldırdı (sürekli hızda +0.3%, aynı
+  sonuçlar).
+- **Reddedilen bir paroladan sonra bellekte hiçbir şey kalmaz:** durdurmadan sonra çalıştırılan `--status` ve `--logs`
+  artık açılmış program dosyalarını (yaklaşık 1.5 GB) bellekte bırakmaz.
+- **Model zaten sizde mi?** Yeniden indirmek yerine kopyalayın: aşağıdaki bölüme bakın.
+
+v0.1.45 sürümündeki değişiklikler [`RELEASE-NOTES-v0.1.45.md`](RELEASE-NOTES-v0.1.45.md) dosyasındadır.
 
 ## İndirme
 
 | Dosya | Hedef | SHA-256 |
 |---|---|---|
-| [`TheNewMiner-v0.1.45-linux-x86_64-sealed.tar.xz`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.45/TheNewMiner-v0.1.45-linux-x86_64-sealed.tar.xz) | Linux x86_64 | `6281bf489fae843551114f09ead5498d3e47af33a07e4cfdfbdc0a5d6bdbafbb` |
-| [`TheNewMiner-v0.1.45-windows-wsl2-r1.zip`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.45/TheNewMiner-v0.1.45-windows-wsl2-r1.zip) | Windows 10 / 11 (WSL2 üzerinden çalışır) | `90732441b0dc67de84809d9bf3bda4441c0bf7cd9a52fefb95d29242ad7b15e7` |
-| [`SHA256SUMS`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.45/SHA256SUMS) | tüm paketlerin sağlama toplamları | |
+| [`TheNewMiner-v0.1.46-linux-x86_64-sealed.tar.xz`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.46/TheNewMiner-v0.1.46-linux-x86_64-sealed.tar.xz) | Linux x86_64 | `3585360e80993176475b6e400258888b4ddf8cb130ff97574e74e15cf1e248a8` |
+| [`TheNewMiner-v0.1.46-windows-wsl2-r1.zip`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.46/TheNewMiner-v0.1.46-windows-wsl2-r1.zip) | Windows 10 / 11 (WSL2 üzerinden çalışır) | `dd9cb395e4012bfb81a5b9f0a1fdfd196955b781265a4a4e0d67266bd67b6a9e` |
+| [`SHA256SUMS`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.46/SHA256SUMS) | tüm paketlerin sağlama toplamları | |
 
 Windows zip'i hepsi bir arada bir pakettir: Linux madencisini zaten içerir, bu yüzden yalnızca zip'e ihtiyacınız vardır.
 
@@ -51,20 +68,21 @@ shasum -a 256 -c --ignore-missing SHA256SUMS
 
 ```bat
 :: Windows (Komut İstemi): çıktıyı yukarıdaki tablodaki SHA-256 ile karşılaştırın
-certutil -hashfile TheNewMiner-v0.1.45-windows-wsl2-r1.zip SHA256
+certutil -hashfile TheNewMiner-v0.1.46-windows-wsl2-r1.zip SHA256
 ```
 
 Her dosya için `OK` görünmelidir (Windows'ta: tablodaki ile aynı 64 karakter). Eşleşmiyorsa dosyayı kullanmayın.
 
 ## Tek tıkla kurulum (Linux)
 
-Bu komutun sonundaki `<YOUR_WALLET>`, `<YOUR_POOL_PASSWORD>` ve `<RIG_NAME>` değerlerini (`<` `>` işaretleri dahil)
-değiştirin, ardından komutu bir terminale yapıştırın. Komut, bu sürümün Linux paketini ve `SHA256SUMS` dosyasını
+Önce havuz hesabınızı oluşturun (yukarıdaki "Başlamadan önce" bölümüne bakın). Ardından bu komutun sonundaki
+`<YOUR_WALLET>`, `<YOUR_POOL_PASSWORD>` ve `<RIG_NAME>` değerlerini (`<` `>` işaretleri dahil) cüzdanınız, havuz
+parolanız ve bu rig için bir adla değiştirin, sonra komutu bir terminale yapıştırın. Komut, bu sürümün Linux paketini ve `SHA256SUMS` dosyasını
 indirir (`curl` ile ya da `wget` ile; ikincisi yalnızca `curl` yoksa kullanılır), SHA-256'yı denetler, madenciyi
 `~/thenewminer` içine açar ve arka planda başlatır:
 
 ```bash
-mkdir -p ~/thenewminer-download && cd ~/thenewminer-download && V=v0.1.45 && P=TheNewMiner-$V-linux-x86_64-sealed.tar.xz && U=https://github.com/ngasuka855/TheNewMiner/raw/$V && rm -f "$P" SHA256SUMS && if command -v curl >/dev/null 2>&1; then curl -fL -o "$P" "$U/$P" && curl -fL -o SHA256SUMS "$U/SHA256SUMS"; else wget -O "$P" "$U/$P" && wget -O SHA256SUMS "$U/SHA256SUMS"; fi && sha256sum -c --ignore-missing SHA256SUMS && tar -xJf "$P" -C ~ && cd ~/thenewminer && ./thenewminer -u <YOUR_WALLET> -p '<YOUR_POOL_PASSWORD>' -w <RIG_NAME> --background
+mkdir -p ~/thenewminer-download && cd ~/thenewminer-download && V=v0.1.46 && P=TheNewMiner-$V-linux-x86_64-sealed.tar.xz && U=https://github.com/ngasuka855/TheNewMiner/raw/$V && rm -f "$P" SHA256SUMS && if command -v curl >/dev/null 2>&1; then curl -fL -o "$P" "$U/$P" && curl -fL -o SHA256SUMS "$U/SHA256SUMS"; else wget -O "$P" "$U/$P" && wget -O SHA256SUMS "$U/SHA256SUMS"; fi && sha256sum -c --ignore-missing SHA256SUMS && tar -xJf "$P" -C ~ && cd ~/thenewminer && ./thenewminer -u <YOUR_WALLET> -p '<YOUR_POOL_PASSWORD>' -w <RIG_NAME> --background
 ```
 
 Komut, başarısız olan ilk adımda durur: bir indirme hatası veya SHA-256 uyuşmazlığı durumunda hiçbir şey başlatılmaz
@@ -79,7 +97,7 @@ onu orada durdurun ya da Linux bölümünde anlatıldığı gibi orada güncelle
 ## Linux
 
 ```bash
-tar -xJf TheNewMiner-v0.1.45-linux-x86_64-sealed.tar.xz
+tar -xJf TheNewMiner-v0.1.46-linux-x86_64-sealed.tar.xz
 cd thenewminer
 ./thenewminer -u <YOUR_WALLET> -p '<YOUR_POOL_PASSWORD>' -w rig-01 --background
 ```
@@ -101,7 +119,7 @@ cd thenewminer
 - Ayarlar `thenewminer/.miner/` içinde hatırlanır (parolayı içeren dosyayı yalnızca siz okuyabilirsiniz). Cüzdan ve
   parola komut satırından hemen kaldırılır, bu yüzden `ps` çıktısında görünmezler (kabuğunuz komutu yine de geçmişinde
   tutabilir).
-- Havuz cüzdanı veya parolayı reddederse (ya da hesabı henüz onaylamadıysa), madenci bunu bildirir ve durur.
+- Havuz cüzdanı veya parolayı reddederse, madenci bunu bildirir ve durur.
   Bunları kontrol edin ve `-u` ve `-p` ile yeniden başlatın.
 - İlk başlatmada model indirilir (yaklaşık 8.1 GiB, yalnızca bir kez), kartınız için GPU motoru kurulur ve kart üzerinde
   bir öz denetim çalıştırılır, ardından kazım başlar. `[ RATE] ... N/s` gibi satırlar kazım yapıldığı anlamına gelir.
@@ -118,7 +136,7 @@ cd thenewminer
 
 ## Windows (tek tıkla)
 
-1. `TheNewMiner-v0.1.45-windows-wsl2-r1.zip` dosyasının tamamını (sağ tık › Tümünü Ayıkla) istediğiniz yere çıkarın:
+1. `TheNewMiner-v0.1.46-windows-wsl2-r1.zip` dosyasının tamamını (sağ tık › Tümünü Ayıkla) istediğiniz yere çıkarın:
    herhangi bir klasör, herhangi bir sürücü; boşluk veya Çince karakter içeren yollar sorun değildir. Zip görünümünün
    içinden çalıştırmayın.
 2. **`TheNewMiner.bat`** dosyasına çift tıklayın.
@@ -155,11 +173,12 @@ Günlük komutlar (çıkarılan klasörde bir Komut İstemi açın):
 
 ## HiveOS (deneysel)
 
-HiveOS desteği v0.1.45 ile gelen yeni bir özelliktir ve **deneyseldir**. Aşağıdaki HiveOS custom miner paketini kullanır.
+HiveOS desteği **deneyseldir** (v0.1.45'ten beri; v0.1.45 gerçek bir HiveOS rig'inde çalıştı, v0.1.46'nın ilk başlatma
+değişiklikleri ise henüz bir HiveOS rig'inde çalışmadı). Aşağıdaki HiveOS custom miner paketini kullanır.
 
 | Dosya | SHA-256 |
 |---|---|
-| [`thenewminer-0.1.45.tar.gz`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.45/thenewminer-0.1.45.tar.gz) | `90576efd388ceeca4e456b62b568f267465320913a07c9f9736f42363b1701dc` |
+| [`thenewminer-0.1.46.tar.gz`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.46/thenewminer-0.1.46.tar.gz) | `2284c258176e6b372bf56947a343116688e773dee2d479a7f5f125ad9f0a1915` |
 
 Hızlı kurulum (flight sheet'i içe aktarın):
 
@@ -179,7 +198,7 @@ flight sheet oluşturun, **Setup Miner Config**'e tıklayın ve şunları doldur
 | Alan | Değer |
 |---|---|
 | Miner name | `thenewminer` (Installation URL'den otomatik doldurulur) |
-| Installation URL | `https://github.com/ngasuka855/TheNewMiner/raw/v0.1.45/thenewminer-0.1.45.tar.gz` |
+| Installation URL | `https://github.com/ngasuka855/TheNewMiner/raw/v0.1.46/thenewminer-0.1.46.tar.gz` |
 | Hash algorithm | boş bırakın |
 | Wallet and worker template | `%WAL%.%WORKER_NAME%` |
 | Pool URL | `tsc-wss.the-new.win` (yok sayılır: havuz yerleşiktir) |
@@ -197,28 +216,71 @@ flight sheet oluşturun, **Setup Miner Config**'e tıklayın ve şunları doldur
   10 dakika bekler: flight sheet'i düzeltin ve uygulayın (bu, madenciyi hemen yeniden başlatır).
 - Loglar: HiveOS'taki madenci ekranı (rig'in kabuğunda `miner`) veya `/var/log/miner/custom/custom.log`.
 - **Güncelleme:** Installation URL'deki iki sürüm numarasını da değiştirin (örneğin
-  `.../raw/v0.1.46/thenewminer-0.1.46.tar.gz`) ve flight sheet'i uygulayın. HiveOS yalnızca URL'deki dosya adı
+  `.../raw/vX.Y.Z/thenewminer-X.Y.Z.tar.gz`) ve flight sheet'i uygulayın. HiveOS yalnızca URL'deki dosya adı
   değiştiğinde kurulum yapar.
-- **İlk başlatma biraz sürer:** model indirildikten sonra, RTX 30 serisi kartlarda yavaş bir rig diskinde tek seferlik
-  bir GPU denetimi zaman aşımına uğrayabilir ve HiveOS madenciyi kendiliğinden iki ya da üç kez yeniden başlatır
-  (yaklaşık 8 dakika). Müdahale etmeyin; ardından madencilik başlar.
-- **Model zaten sizde mi?** İlk başlatmadan önce `Qwen3-8B-Q8_0-full-v2.gguf` dosyasını (yaklaşık 8.1 GiB, tam olarak bu
-  dosya adıyla) rig'deki `/home/user/` dizinine kopyalayın: madenci dosyayı bulur, SHA-256 değerini denetler ve yeniden
-  indirmek yerine onu kullanır.
+- **İlk başlatma** modeli indirir ve GPU motorunu kurar; bu birkaç dakika sürer. Ardından madenci GPU için
+  yapılandırmasını hazırlayamazsa log nedenini bir `Reason:` satırında bildirir ve HiveOS giderek uzayan aralarla (bir
+  ila on dakika) yeniden dener.
+- **Model zaten sizde mi?** İlk başlatmadan önce rig'deki `/home/user/` dizinine kopyalayın (sonraki bölüme bakın).
 
-**Rig GitHub'a erişemiyorsa:** `thenewminer-0.1.45.tar.gz` dosyasını bir PC'ye indirin (SHA-256 değerini yukarıdaki
+**Rig GitHub'a erişemiyorsa:** `thenewminer-0.1.46.tar.gz` dosyasını bir PC'ye indirin (SHA-256 değerini yukarıdaki
 tabloda kontrol edin), rig'e kopyalayın ve HiveOS'un özel madencileri tuttuğu yere açın. Ardından flight sheet'i her
 zamanki gibi uygulayın: HiveOS "Already installed" bildirir ve paketi indirmez. Dosya adını tam olarak
-`thenewminer-0.1.45.tar.gz` olarak koruyun (tarayıcı " (1)" ekleyebilir) ve flight sheet'teki Installation URL'yi
+`thenewminer-0.1.46.tar.gz` olarak koruyun (tarayıcı " (1)" ekleyebilir) ve flight sheet'teki Installation URL'yi
 değiştirmeyin: HiveOS bu adı karşılaştırır.
 
 ```bash
 # PC'de
-scp thenewminer-0.1.45.tar.gz user@<RIG_IP>:/tmp/
+scp thenewminer-0.1.46.tar.gz user@<RIG_IP>:/tmp/
 # rig'de, root olarak (Hive Shell ya da SSH ve ardından sudo -i)
 mkdir -p /hive/miners/custom/downloads
-mv /tmp/thenewminer-0.1.45.tar.gz /hive/miners/custom/downloads/
-cd /hive/miners/custom && tar -xzf downloads/thenewminer-0.1.45.tar.gz
+mv /tmp/thenewminer-0.1.46.tar.gz /hive/miners/custom/downloads/
+cd /hive/miners/custom && tar -xzf downloads/thenewminer-0.1.46.tar.gz
+```
+
+## Model zaten sizde mi? Kopyalayın
+
+Madencinin 8.1 GiB'lık tek bir model dosyasına ihtiyacı vardır: `Qwen3-8B-Q8_0-full-v2.gguf` (`8709518112` bayt, SHA-256
+`408b955510e196121c1c375201744783b5c9a43c7956d73fc78df54c66e883d6`). Dosya bu makinede ya da ağınızdaki başka bir
+bilgisayarda zaten varsa, yeniden indirmek yerine kopyalayın.
+
+Madenci herhangi bir şey indirmeden önce dosyayı tam adına ve boyutuna göre şu yerlerde arar: kendi model klasöründe,
+önceki TheNewMiner klasörlerinde, ev klasörünüzde (ve onun bir ya da iki alt düzeyinde veya oradaki bir `models`
+klasöründe), `/home` altındaki ev klasörlerinde, `/data`, `/mnt/*`, `/media/*`, `/opt`, `/srv`,
+`/workspace`, `/var/lib` içinde ve Hugging Face / ModelScope önbelleklerinde. Orada hiçbir şey bulunamazsa aynı diskteki
+bu klasörlerde en fazla 20 saniye boyunca tam olarak bu boyutta herhangi bir `.gguf` dosyası arar (bağlı diğer diskler
+yalnızca ada göre denetlenir). Bulunan bir dosya **yalnızca SHA-256 değeri eşleşirse** kullanılır; madenci ardından
+dosyaya bağlantı oluşturur (aynı disk) ya da onu kendi model klasörüne kopyalar, böylece sonraki her sürüm onu hemen
+bulur. Dosyayı doğrudan da belirtebilirsiniz: `./thenewminer --model /path/to/Qwen3-8B-Q8_0-full-v2.gguf`.
+
+**Linux:** dosyayı ev klasörünüze kopyalayın, ardından madenciyi her zamanki gibi başlatın. Aynı ağdaki bir Mac'ten veya
+PC'den (Windows 10 ve 11'de PowerShell içinde `scp` vardır) `user` ve `<MINER_IP>` değerlerini madencinizin kullanıcı
+adı ve adresiyle değiştirin:
+
+```bash
+# doğrudan madenci makinesinde
+cp /path/to/Qwen3-8B-Q8_0-full-v2.gguf ~/
+# ya da başka bir bilgisayardan
+scp Qwen3-8B-Q8_0-full-v2.gguf user@<MINER_IP>:~/
+```
+
+**HiveOS:** dosyayı rig'deki `/home/user/` dizinine kopyalayın (HiveOS'un SSH kullanıcı adı `user`), ardından flight
+sheet'i uygulayın. Madenci dosyayı orada bulur, denetler ve paketin yanında (`/hive/miners/custom/.thenewminer-models`)
+saklar; böylece yeni bir sürüm onu bir daha asla indirmez. HiveOS'un diski küçüktür: önce `disk-expand` çalıştırın
+(`df -h /hive/miners` 12 GB'tan az boş alan gösteriyorsa).
+
+```bash
+scp Qwen3-8B-Q8_0-full-v2.gguf user@<RIG_IP>:/home/user/
+```
+
+**Windows:** ilk `setup` TheNewMiner'ın WSL dağıtımını oluşturduktan sonra dosyayı bir Komut İstemi penceresinden bu
+dağıtıma kopyalayın (`D:\Models` yolunu kopyanızın bulunduğu yerle değiştirin). İndirme zaten başlamışsa pencereyi
+kapatın, bu komutları çalıştırın, ardından TheNewMiner'ı yeniden başlatın: kopyayı bulur ve indirmeyi atlar. Kopyalama
+birkaç dakika sürer ve ilerleme göstermez.
+
+```bat
+wsl -d TheNewMiner -u root -- mkdir -p ~/thenewminer/models
+wsl -d TheNewMiner -u root -- cp /mnt/d/Models/Qwen3-8B-Q8_0-full-v2.gguf ~/thenewminer/models/
 ```
 
 ## Cüzdanı, havuz parolasını veya worker adını değiştirme
@@ -328,6 +390,8 @@ share'ler. "Kararlı kazım", iş değişimleri arasındaki medyan hashrate'tir.
 
 | Tarih | Kart | İşletim sistemi | Paket | Hashrate | A / R |
 |---|---|---|---|---|---|
+| 2026-10-23 | RTX 5090 | Linux | v0.1.46 yayın derlemesi | 95.41 N/s (kararlı kazım, 12 dk; iş değişimleri dahil 91.70) | 10 / 0 (+1 stale; 0 geçersiz) |
+| 2026-10-23 | RTX 4090 | Linux | v0.1.46 yayın derlemesi | 66.23 N/s (medyan, 10 dk) | 2 / 0 |
 | 2026-10-23 | RTX 4090 | Linux | v0.1.45 yayın derlemesi | 65.42 N/s (kararlı kazım, 16 dk; iş değişimleri dahil 62.35) | 13 / 0 (0 geçersiz) |
 | 2026-10-23 | RTX 5090 | Linux | v0.1.45 yayın derlemesi | 94.18 N/s (kararlı kazım; iş değişimleri dahil 92.24) | 17 / 0 (0 geçersiz) |
 | 2026-10-23 | RTX 4090 | Linux | v0.1.44 sealed-r4 | 65.58 N/s (medyan, 16 dk) | 10 / 0 |
@@ -369,13 +433,20 @@ sayfadan indirilmiş ve SHA-256'sı eşleşen bir paket için yapın.
 kurabilir. Bu yalnızca bir kez olur. Sonraki başlatmalarda kazım çok daha erken başlar.
 
 **Madenci, havuzun cüzdanı / parolayı reddettiğini söylüyor.**
-Cüzdan adresini ve havuz parolasını (ve havuzun hesabınızı onayladığını) kontrol edin, ardından yeniden başlatın:
+Cüzdan adresini ve havuz parolasını kontrol edin (hesap havuz web sitesinde mevcut olmalıdır), ardından yeniden başlatın:
 Linux'ta `./thenewminer -u <YOUR_WALLET> -p '<YOUR_POOL_PASSWORD>'`, Windows'ta `TheNewMiner.bat setup`. Madenci
 hatalı kimlik bilgileriyle kendiliğinden yeniden denemez.
 
 **Kazım yapıyor mu? Loglar nerede?**
 Linux: `./thenewminer --status`, `./thenewminer --logs` veya `thenewminer/.miner/thenewminer.log` dosyası.
 Windows: `TheNewMiner.bat status` ve `TheNewMiner.bat logs`.
+
+## Sorun bildirme
+
+[GitHub Issues](https://github.com/ngasuka855/TheNewMiner/issues/new/choose) üzerinde bir issue açın ve hata raporu
+formunu doldurun: TheNewMiner sürümü, sisteminiz, GPU model(ler)i ve sürücü, `./thenewminer --status` çıktısı ve son log
+satırları. Issue'lar herkese açıktır: **havuz parolanızı veya cüzdanınızın özel anahtarını asla paylaşmayın** ve
+yapıştırdığınız her şeyden parolayı (ve isterseniz cüzdan adresinizi) çıkarın.
 
 ## Güvenlik notu
 

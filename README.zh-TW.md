@@ -6,27 +6,36 @@
 
 TheNewMiner 是 **TensorCash** 的 GPU 挖礦程式，支援 **顯示記憶體 10 GB 以上** 的 NVIDIA GeForce RTX 30、40 和 50 系列顯示卡，在礦池 **`tsc-wss.the-new.win`** 上挖礦。礦池位址已內建於程式中：不需要輸入礦池位址，會直接連線。
 
-目前版本：**v0.1.45**
+目前版本：**v0.1.46** · 礦池網站：[tsc.the-new.win](https://tsc.the-new.win/#/home)
 
-## v0.1.45 新功能
+## 開始之前：建立礦池帳戶
 
-- **礦池拒絕你的錢包或密碼時，會顯示清楚的訊息。** 挖礦程式會以一行訊息說明，然後停止，不再重試；`--status` 會顯示原因。請檢查錢包和密碼，然後以 `-u` 和 `-p` 重新啟動。
-- **你的錢包和密碼不再出現在 `ps`** 或其他使用者的處理程序清單中。
-- **`./thenewminer --status`** 會顯示是否正在挖礦、從何時開始、最近的算力，以及被接受 / 被拒絕的份額。
-- **支援 HiveOS（實驗性）**：提供 HiveOS 自訂挖礦程式（custom miner）安裝包和可匯入的飛行表（flight sheet）（請見下方 HiveOS 一節）。
-- **安全升級**：舊版本仍在挖礦時，新版本會拒絕啟動（並提示你先停止舊版本）；執行 `--stop` 之後，新版本會自行重新安裝程式檔案，並保留你的設定和模型。
-- **`--background` 在挖礦程式隨即結束時不再顯示「已啟動」**，而是顯示原因。
-- **Docker 與較小的共用記憶體**：當記憶體中的資料夾太小（Docker 預設為 64 MiB）或不允許執行程式時，挖礦程式會改用磁碟上的 `thenewminer/.miner/run/`，並顯示提示。
-- **礦池密碼現在可以使用任何可見字元**（包括標點符號和非英文字母）：6–128 個字元，不能有空格。
-- 支援更多 Linux 系統：安裝程式現在會檢查它所需的條件（glibc 2.34 或更新版本），而不是只接受少數幾個 Ubuntu 版本。
+挖礦需要一個礦池帳戶：你的 TSC 收款地址（錢包），以及你在礦池網站上設定的礦池密碼。網站提供英文版（可透過網站的語言選單切換）。
+
+1. 開啟 [tsc.the-new.win](https://tsc.the-new.win/#/home)，進入 **Start mining**（开始挖矿）。
+2. 在 **1. Bind Wallet**（绑定钱包）下，輸入你的 **TSC payout address**（TSC 收款地址，即 `tc1...`；請仔細核對：挖礦收入一旦發送到錯誤的地址，將無法追回），設定一組 **Pool Password**（矿池密码，6–128 個字元），並在 **Confirm Password**（确认密码）下再次輸入。
+3. 點擊 **Apply to join pool**（申请加入矿池）。頁面會確認錢包已綁定；帳戶立即可用。
+4. 在挖礦程式中使用相同的錢包和密碼：Linux 上使用 `-u <YOUR_WALLET> -p '<YOUR_POOL_PASSWORD>'`，Windows 上依 `TheNewMiner.bat` 的提問填寫，HiveOS 上則填在 flight sheet 中。啟動後約 3–5 分鐘，你的礦機會出現在礦池網站的 **My Miners**（我的矿工）中。
+
+礦池無法找回遺忘的礦池密碼，收款地址日後也無法變更。礦池密碼不是你錢包的私鑰：切勿將私鑰交給任何人。
+
+## v0.1.46 新功能
+
+- **RTX 30 系列顯示卡和 HiveOS 首次啟動失敗更少。** 一次性的 GPU 檢查現在使用針對每個支援的顯示卡系列預先編譯的 GPU 程式碼，並且已在安裝期間執行過一次；GPU 編譯快取會在多次啟動和升級之間保留。如果該檢查在 RTX 30 系列顯示卡上仍然逾時，挖礦程式會改為在 CPU 上完成這個步驟並繼續挖礦。如果無法準備該顯示卡的設定，挖礦程式會以一行 `Reason:` 說明原因（結束代碼 78）。
+- **HiveOS**：當挖礦程式在首次啟動時無法為 GPU 準備設定（結束代碼 78）時，礦機現在會等待並重試，間隔逐漸拉長（一到十分鐘），而不是每隔幾秒就重新啟動一次。
+- **更順暢的波次（wave）**：當礦池的檢查點（checkpoint）在一個波次進行到一半時改變，下一個波次的工作現在會在背景重新準備。在 RTX 5090 上，這消除了那一刻的等待（持續算力 +0.3%，結果完全相同）。
+- **密碼被拒絕後，記憶體中不再留下任何東西**：停止後執行 `--status` 和 `--logs`，不會再把解開的程式檔案（約 1.5 GB）留在記憶體中。
+- **已經有模型了？** 直接複製，不必重新下載：請見下方一節。
+
+v0.1.45 的變更內容請見 [`RELEASE-NOTES-v0.1.45.md`](RELEASE-NOTES-v0.1.45.md)。
 
 ## 下載
 
 | 檔案 | 適用於 | SHA-256 |
 |---|---|---|
-| [`TheNewMiner-v0.1.45-linux-x86_64-sealed.tar.xz`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.45/TheNewMiner-v0.1.45-linux-x86_64-sealed.tar.xz) | Linux x86_64 | `6281bf489fae843551114f09ead5498d3e47af33a07e4cfdfbdc0a5d6bdbafbb` |
-| [`TheNewMiner-v0.1.45-windows-wsl2-r1.zip`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.45/TheNewMiner-v0.1.45-windows-wsl2-r1.zip) | Windows 10 / 11（透過 WSL2 執行） | `90732441b0dc67de84809d9bf3bda4441c0bf7cd9a52fefb95d29242ad7b15e7` |
-| [`SHA256SUMS`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.45/SHA256SUMS) | 所有安裝包的檢查碼 | |
+| [`TheNewMiner-v0.1.46-linux-x86_64-sealed.tar.xz`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.46/TheNewMiner-v0.1.46-linux-x86_64-sealed.tar.xz) | Linux x86_64 | `3585360e80993176475b6e400258888b4ddf8cb130ff97574e74e15cf1e248a8` |
+| [`TheNewMiner-v0.1.46-windows-wsl2-r1.zip`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.46/TheNewMiner-v0.1.46-windows-wsl2-r1.zip) | Windows 10 / 11（透過 WSL2 執行） | `dd9cb395e4012bfb81a5b9f0a1fdfd196955b781265a4a4e0d67266bd67b6a9e` |
+| [`SHA256SUMS`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.46/SHA256SUMS) | 所有安裝包的檢查碼 | |
 
 Windows 的 zip 是一體式安裝包：已經包含 Linux 挖礦程式，只需要下載這一個 zip。
 
@@ -43,17 +52,17 @@ shasum -a 256 -c --ignore-missing SHA256SUMS
 
 ```bat
 :: Windows（命令提示字元）：將輸出結果與上表中的 SHA-256 比對
-certutil -hashfile TheNewMiner-v0.1.45-windows-wsl2-r1.zip SHA256
+certutil -hashfile TheNewMiner-v0.1.46-windows-wsl2-r1.zip SHA256
 ```
 
 每個檔案都必須顯示 `OK`（在 Windows 上則是與上表完全相同的 64 個字元）。如果不一致，請勿使用。
 
 ## 一鍵安裝（Linux）
 
-將這行指令末尾的 `<YOUR_WALLET>`、`<YOUR_POOL_PASSWORD>` 和 `<RIG_NAME>`（連同 `<` `>` 一起）替換成你自己的內容，然後貼到終端機中執行。它會下載此版本的 Linux 安裝包和 `SHA256SUMS`（使用 `curl`；或使用 `wget`，適用於沒有 `curl` 的系統），驗證 SHA-256，將挖礦程式解壓縮到 `~/thenewminer`，並在背景啟動：
+請先建立礦池帳戶（見上方「開始之前」）。然後將這行指令末尾的 `<YOUR_WALLET>`、`<YOUR_POOL_PASSWORD>` 和 `<RIG_NAME>`（連同 `<` `>` 一起）分別替換成你的錢包、你的礦池密碼和這台礦機的名稱，再貼到終端機中執行。它會下載此版本的 Linux 安裝包和 `SHA256SUMS`（使用 `curl`；或使用 `wget`，適用於沒有 `curl` 的系統），驗證 SHA-256，將挖礦程式解壓縮到 `~/thenewminer`，並在背景啟動：
 
 ```bash
-mkdir -p ~/thenewminer-download && cd ~/thenewminer-download && V=v0.1.45 && P=TheNewMiner-$V-linux-x86_64-sealed.tar.xz && U=https://github.com/ngasuka855/TheNewMiner/raw/$V && rm -f "$P" SHA256SUMS && if command -v curl >/dev/null 2>&1; then curl -fL -o "$P" "$U/$P" && curl -fL -o SHA256SUMS "$U/SHA256SUMS"; else wget -O "$P" "$U/$P" && wget -O SHA256SUMS "$U/SHA256SUMS"; fi && sha256sum -c --ignore-missing SHA256SUMS && tar -xJf "$P" -C ~ && cd ~/thenewminer && ./thenewminer -u <YOUR_WALLET> -p '<YOUR_POOL_PASSWORD>' -w <RIG_NAME> --background
+mkdir -p ~/thenewminer-download && cd ~/thenewminer-download && V=v0.1.46 && P=TheNewMiner-$V-linux-x86_64-sealed.tar.xz && U=https://github.com/ngasuka855/TheNewMiner/raw/$V && rm -f "$P" SHA256SUMS && if command -v curl >/dev/null 2>&1; then curl -fL -o "$P" "$U/$P" && curl -fL -o SHA256SUMS "$U/SHA256SUMS"; else wget -O "$P" "$U/$P" && wget -O SHA256SUMS "$U/SHA256SUMS"; fi && sha256sum -c --ignore-missing SHA256SUMS && tar -xJf "$P" -C ~ && cd ~/thenewminer && ./thenewminer -u <YOUR_WALLET> -p '<YOUR_POOL_PASSWORD>' -w <RIG_NAME> --background
 ```
 
 任何一個步驟失敗，指令都會在該步驟停止：下載出錯或 SHA-256 不一致時，不會啟動任何程式（驗證是為了防範下載損毀；兩個檔案都來自本頁面）。請保留密碼兩側的單引號：在單引號內，任何字元都是安全的（密碼中的 `'` 要寫成 `'\''`）。如果 `tar` 顯示 `xz: Cannot exec`，請安裝 xz（`sudo apt-get install -y xz-utils`），然後重新執行這行指令。
@@ -63,7 +72,7 @@ mkdir -p ~/thenewminer-download && cd ~/thenewminer-download && V=v0.1.45 && P=T
 ## Linux
 
 ```bash
-tar -xJf TheNewMiner-v0.1.45-linux-x86_64-sealed.tar.xz
+tar -xJf TheNewMiner-v0.1.46-linux-x86_64-sealed.tar.xz
 cd thenewminer
 ./thenewminer -u <YOUR_WALLET> -p '<YOUR_POOL_PASSWORD>' -w rig-01 --background
 ```
@@ -81,7 +90,7 @@ cd thenewminer
 - `-u` 是你的 TensorCash 錢包地址，`-p` 是你的礦池密碼，`-w` 是在礦池上顯示的礦工名稱（預設：本機的主機名稱；1–64 個英文字母、數字、`_`、`-` 或 `.`）。
 - 礦池密碼：6–128 個字元，可以是任何可見字元，不能有空格。在命令列上請一律用單引號將它括起來，例如 `-p 'my$pass!'`（單引號內的 `'` 要寫成 `'\''`）。
 - 設定會被記住，儲存在 `thenewminer/.miner/` 中（存放密碼的檔案只有你本人可以讀取）。錢包和密碼會立即從命令列中移除，因此不會出現在 `ps` 中（但你的 shell 仍可能在歷史紀錄中保留這行指令）。
-- 如果礦池拒絕了錢包或密碼（或尚未核准該帳戶），挖礦程式會顯示訊息並停止。請檢查後以 `-u` 和 `-p` 重新啟動。
+- 如果礦池拒絕了錢包或密碼，挖礦程式會顯示訊息並停止。請檢查後以 `-u` 和 `-p` 重新啟動。
 - 第一次啟動會下載模型（約 8.1 GiB，只下載一次）、安裝適合你顯示卡的 GPU 引擎，並在顯示卡上執行自我檢測，然後開始挖礦。看到 `[ RATE] ... N/s` 這類訊息，就表示正在挖礦。
 - 在 Ubuntu 和 Debian 上，第一次啟動可能會用 `apt` 安裝幾個缺少的系統程式庫（需要 sudo 或 root 權限）；在其他系統上，它會列出這些程式庫，由你自行安裝。
 - 多卡礦機：支援，每張 GPU 都會挖礦；此版本是在每台機器一張 GPU 的情況下測試的。
@@ -91,7 +100,7 @@ cd thenewminer
 
 ## Windows（一鍵使用）
 
-1. 將整個 `TheNewMiner-v0.1.45-windows-wsl2-r1.zip` 解壓縮（按右鍵 › 全部解壓縮）到任何位置：任何資料夾、任何磁碟機皆可，路徑含有空格或中文字也沒問題。請勿在 zip 的預覽視窗中直接執行。
+1. 將整個 `TheNewMiner-v0.1.46-windows-wsl2-r1.zip` 解壓縮（按右鍵 › 全部解壓縮）到任何位置：任何資料夾、任何磁碟機皆可，路徑含有空格或中文字也沒問題。請勿在 zip 的預覽視窗中直接執行。
 2. 按兩下 **`TheNewMiner.bat`**。
    - **第一次**：檢查 Windows、驅動程式和磁碟；必要時開啟 WSL2（會跳出一次系統管理員確認；可能需要重新開機一次，之後安裝會自動繼續）；顯示資料的存放位置（按 Enter 確認）；建立專用的 Linux（WSL）環境，安裝內附的挖礦程式；**只詢問一次** 你的錢包地址（以 `tc1` 開頭）、礦池密碼（輸入兩次；6–128 個字元，可以是任何可見字元，不能有空格）和礦工名稱（直接按 Enter = 電腦名稱）；下載模型，然後開始挖礦。
    - **之後每一次**：按兩下即會以已儲存的設定立即開始挖礦。桌面上也會建立一個「TheNewMiner」捷徑。如果已經在挖礦時再按兩下，會告訴你正在挖礦並顯示日誌。
@@ -116,11 +125,11 @@ cd thenewminer
 
 ## HiveOS（實驗性）
 
-HiveOS 支援是 v0.1.45 新增的功能，目前為 **實驗性**。它使用下方的 HiveOS 自訂挖礦程式（custom miner）安裝包。
+HiveOS 支援目前為 **實驗性**（自 v0.1.45 起提供，該版本已在實際的 HiveOS 礦機上執行過；v0.1.46 的首次啟動變更尚未在 HiveOS 礦機上執行過）。它使用下方的 HiveOS 自訂挖礦程式（custom miner）安裝包。
 
 | 檔案 | SHA-256 |
 |---|---|
-| [`thenewminer-0.1.45.tar.gz`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.45/thenewminer-0.1.45.tar.gz) | `90576efd388ceeca4e456b62b568f267465320913a07c9f9736f42363b1701dc` |
+| [`thenewminer-0.1.46.tar.gz`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.46/thenewminer-0.1.46.tar.gz) | `2284c258176e6b372bf56947a343116688e773dee2d479a7f5f125ad9f0a1915` |
 
 快速設定（匯入 flight sheet）：
 
@@ -133,7 +142,7 @@ HiveOS 支援是 v0.1.45 新增的功能，目前為 **實驗性**。它使用�
 | 欄位 | 值 |
 |---|---|
 | Miner name | `thenewminer`（依 Installation URL 自動填入） |
-| Installation URL | `https://github.com/ngasuka855/TheNewMiner/raw/v0.1.45/thenewminer-0.1.45.tar.gz` |
+| Installation URL | `https://github.com/ngasuka855/TheNewMiner/raw/v0.1.46/thenewminer-0.1.46.tar.gz` |
 | Hash algorithm | 留空 |
 | Wallet and worker template | `%WAL%.%WORKER_NAME%` |
 | Pool URL | `tsc-wss.the-new.win`（會被忽略：礦池已內建） |
@@ -146,19 +155,47 @@ HiveOS 支援是 v0.1.45 新增的功能，目前為 **實驗性**。它使用�
 - 錢包和密碼透過環境變數傳給挖礦程式，而不是透過命令列。
 - 如果礦池拒絕了錢包或密碼，挖礦程式的日誌會顯示訊息，挖礦程式會等待 10 分鐘後才由 HiveOS 重新啟動：請修正 flight sheet 並套用（這會立即重新啟動挖礦程式）。
 - 日誌：HiveOS 中的挖礦程式畫面（在礦機的 shell 中執行 `miner`）或 `/var/log/miner/custom/custom.log`。
-- **升級**：修改 Installation URL 中的兩處版本號碼（例如 `.../raw/v0.1.46/thenewminer-0.1.46.tar.gz`），然後套用 flight sheet。只有 URL 中的檔案名稱改變時，HiveOS 才會安裝。
-- **首次啟動需要一些時間**：模型下載完成後，在 RTX 30 系列顯示卡上，一次性的 GPU 檢查在磁碟較慢的礦機上可能逾時，隨後 HiveOS 會自動重新啟動挖礦程式，重啟兩三次（約 8 分鐘）。不必理會，之後就會開始挖礦。
-- **已經有模型了？** 在首次啟動前，將 `Qwen3-8B-Q8_0-full-v2.gguf`（約 8.1 GiB，檔案名稱必須完全相同）複製到礦機上的 `/home/user/`：挖礦程式會找到它，驗證其 SHA-256，並直接使用它，而不會重新下載。
+- **升級**：修改 Installation URL 中的兩處版本號碼（例如 `.../raw/vX.Y.Z/thenewminer-X.Y.Z.tar.gz`），然後套用 flight sheet。只有 URL 中的檔案名稱改變時，HiveOS 才會安裝。
+- **首次啟動**會下載模型並安裝 GPU 引擎，需要幾分鐘。如果之後挖礦程式無法為 GPU 準備設定，日誌會以一行 `Reason:` 說明原因，HiveOS 會重試，間隔逐漸拉長（一到十分鐘）。
+- **已經有模型了？** 在首次啟動前，將它複製到礦機上的 `/home/user/`（請見下一節）。
 
-**如果礦機無法連線到 GitHub**：在電腦上下載 `thenewminer-0.1.45.tar.gz`（在上方表格中核對其 SHA-256），複製到礦機上，並解壓縮到 HiveOS 存放自訂挖礦程式的位置。然後照常套用 flight sheet：HiveOS 會顯示「Already installed」，不會再下載。檔案名稱必須維持為 `thenewminer-0.1.45.tar.gz`（瀏覽器可能會加上 " (1)"），也不要修改 flight sheet 中的 Installation URL：HiveOS 比對的正是這個檔案名稱。
+**如果礦機無法連線到 GitHub**：在電腦上下載 `thenewminer-0.1.46.tar.gz`（在上方表格中核對其 SHA-256），複製到礦機上，並解壓縮到 HiveOS 存放自訂挖礦程式的位置。然後照常套用 flight sheet：HiveOS 會顯示「Already installed」，不會再下載。檔案名稱必須維持為 `thenewminer-0.1.46.tar.gz`（瀏覽器可能會加上 " (1)"），也不要修改 flight sheet 中的 Installation URL：HiveOS 比對的正是這個檔案名稱。
 
 ```bash
 # 在電腦上
-scp thenewminer-0.1.45.tar.gz user@<RIG_IP>:/tmp/
+scp thenewminer-0.1.46.tar.gz user@<RIG_IP>:/tmp/
 # 在礦機上，以 root 身分（Hive Shell，或 SSH 登入後執行 sudo -i）
 mkdir -p /hive/miners/custom/downloads
-mv /tmp/thenewminer-0.1.45.tar.gz /hive/miners/custom/downloads/
-cd /hive/miners/custom && tar -xzf downloads/thenewminer-0.1.45.tar.gz
+mv /tmp/thenewminer-0.1.46.tar.gz /hive/miners/custom/downloads/
+cd /hive/miners/custom && tar -xzf downloads/thenewminer-0.1.46.tar.gz
+```
+
+## 已經有模型了？直接複製
+
+挖礦程式需要一個 8.1 GiB 的模型檔案：`Qwen3-8B-Q8_0-full-v2.gguf`（`8709518112` 位元組，SHA-256 `408b955510e196121c1c375201744783b5c9a43c7956d73fc78df54c66e883d6`）。如果這台電腦上，或你網路中的另一台電腦上已經有這個檔案，請直接複製，不必重新下載。
+
+在下載任何內容之前，挖礦程式會依照確切的檔案名稱和大小尋找該檔案：它自己的模型資料夾、先前的 TheNewMiner 資料夾、你的家目錄（以及其下一兩層的資料夾，或其中的 `models` 資料夾）、`/home` 下的各個家目錄、`/data`、`/mnt/*`、`/media/*`、`/opt`、`/srv`、`/workspace`、`/var/lib`，以及 Hugging Face / ModelScope 快取。如果這些位置都找不到，它會花最多 20 秒在同一磁碟上的這些資料夾中搜尋任何大小完全相同的 `.gguf` 檔案（其他已掛載的磁碟只依檔案名稱尋找）。找到的檔案 **只有在 SHA-256 相符時** 才會被使用；接著挖礦程式會將它連結（位於同一磁碟時）或複製到自己的模型資料夾中，這樣之後的每個版本都能立即找到它。你也可以直接指定它：`./thenewminer --model /path/to/Qwen3-8B-Q8_0-full-v2.gguf`。
+
+**Linux**：將它複製到你的家目錄，然後照常啟動挖礦程式。若要從同一網路中的 Mac 或電腦複製（Windows 10 和 11 的 PowerShell 內建 `scp`），請將 `user` 和 `<MINER_IP>` 換成挖礦主機的登入名稱和位址：
+
+```bash
+# 在挖礦主機本機上
+cp /path/to/Qwen3-8B-Q8_0-full-v2.gguf ~/
+# 或從另一台電腦
+scp Qwen3-8B-Q8_0-full-v2.gguf user@<MINER_IP>:~/
+```
+
+**HiveOS**：將它複製到礦機的 `/home/user/`（HiveOS 的 SSH 登入名稱是 `user`），然後套用 flight sheet。挖礦程式會在那裡找到它並驗證，再將它保存在安裝包旁邊（`/hive/miners/custom/.thenewminer-models`），因此新版本不會再次下載。HiveOS 的磁碟很小：請先執行 `disk-expand`（如果 `df -h /hive/miners` 顯示可用空間不足 12 GB）。
+
+```bash
+scp Qwen3-8B-Q8_0-full-v2.gguf user@<RIG_IP>:/home/user/
+```
+
+**Windows**：第一次執行 `setup` 建立 TheNewMiner 的 WSL 發行版本之後，從命令提示字元將檔案複製進去（將 `D:\Models` 改成你的副本所在的位置）。如果下載已經開始，請關閉視窗，執行下列指令，然後再次啟動 TheNewMiner：它會找到這份副本並略過下載。複製需要幾分鐘，過程中不會顯示進度。
+
+```bat
+wsl -d TheNewMiner -u root -- mkdir -p ~/thenewminer/models
+wsl -d TheNewMiner -u root -- cp /mnt/d/Models/Qwen3-8B-Q8_0-full-v2.gguf ~/thenewminer/models/
 ```
 
 ## 更換錢包、礦池密碼或礦工名稱
@@ -243,6 +280,8 @@ nvidia-smi    # 標頭會顯示 "Driver Version: ..."；必須是 580 或更新�
 
 | 日期 | 顯示卡 | 作業系統 | 安裝包 | 算力 | A / R |
 |---|---|---|---|---|---|
+| 2026-10-23 | RTX 5090 | Linux | v0.1.46 正式發行建置版本 | 95.41 N/s（穩定挖礦，12 分鐘；含任務切換為 91.70） | 10 / 0（另有 1 個過期份額；0 個無效） |
+| 2026-10-23 | RTX 4090 | Linux | v0.1.46 正式發行建置版本 | 66.23 N/s（中位數，10 分鐘） | 2 / 0 |
 | 2026-10-23 | RTX 4090 | Linux | v0.1.45 正式發行建置版本 | 65.42 N/s（穩定挖礦，16 分鐘；含任務切換為 62.35） | 13 / 0（0 個無效） |
 | 2026-10-23 | RTX 5090 | Linux | v0.1.45 正式發行建置版本 | 94.18 N/s（穩定挖礦；含任務切換為 92.24） | 17 / 0（0 個無效） |
 | 2026-10-23 | RTX 4090 | Linux | v0.1.44 sealed-r4 | 65.58 N/s（中位數，16 分鐘） | 10 / 0 |
@@ -276,11 +315,15 @@ Microsoft Defender 和其他防毒軟體經常將加密貨幣挖礦程式標記�
 第一次啟動會下載約 8.1 GiB 的模型，並在你的顯示卡上執行 GPU 自我檢測；在 Windows 上可能還要設定 WSL2。這只會發生一次。之後啟動會快得多，很快就開始挖礦。
 
 **挖礦程式顯示礦池拒絕了錢包 / 密碼。**
-請檢查錢包地址和礦池密碼（以及礦池是否已核准你的帳戶），然後重新啟動：Linux 使用 `./thenewminer -u <YOUR_WALLET> -p '<YOUR_POOL_PASSWORD>'`，Windows 使用 `TheNewMiner.bat setup`。憑證錯誤時，挖礦程式不會自行重試。
+請檢查錢包地址和礦池密碼（礦池網站上必須已有該帳戶），然後重新啟動：Linux 使用 `./thenewminer -u <YOUR_WALLET> -p '<YOUR_POOL_PASSWORD>'`，Windows 使用 `TheNewMiner.bat setup`。憑證錯誤時，挖礦程式不會自行重試。
 
 **是否正在挖礦？日誌在哪裡？**
 Linux：`./thenewminer --status`、`./thenewminer --logs`，或檔案 `thenewminer/.miner/thenewminer.log`。
 Windows：`TheNewMiner.bat status` 和 `TheNewMiner.bat logs`。
+
+## 回報問題
+
+在 [GitHub Issues](https://github.com/ngasuka855/TheNewMiner/issues/new/choose) 上開一個 issue，並填寫錯誤回報表單：TheNewMiner 版本、你的系統、GPU 型號和驅動程式、`./thenewminer --status` 的輸出，以及最後幾行日誌。Issue 是公開的：**切勿張貼你的礦池密碼或錢包私鑰**；貼上任何內容前，請刪除其中的密碼（如果你願意，也可以刪除錢包地址）。
 
 ## 安全性說明
 

@@ -8,32 +8,45 @@ TheNewMiner는 **TensorCash**용 GPU 채굴기입니다. **VRAM 10 GB 이상**�
 풀 **`tsc-wss.the-new.win`**에서 채굴합니다. 이 풀은 내장되어 있으므로 풀 주소를 입력할 필요가 없고,
 직접 연결됩니다.
 
-현재 버전: **v0.1.45**
+현재 버전: **v0.1.46** · 풀 웹사이트: [tsc.the-new.win](https://tsc.the-new.win/#/home)
 
-## v0.1.45의 새로운 기능
+## 시작하기 전에: 풀 계정 만들기
 
-- **풀이 지갑이나 비밀번호를 거부하면 명확한 메시지를 표시합니다.** 채굴기가 한 줄로 알려 주고 재시도하지 않고
-  중지합니다. `--status`에서 그 이유를 볼 수 있습니다. 지갑과 비밀번호를 확인한 뒤 `-u`와 `-p`로 다시 시작하세요.
-- **지갑과 비밀번호가 더 이상 `ps`에 보이지 않으며**, 다른 사용자의 프로세스 목록에도 보이지 않습니다.
-- **`./thenewminer --status`**는 채굴 중인지 여부, 언제부터 채굴 중인지, 최근 해시레이트, 승인 / 거부된 셰어를 보여 줍니다.
-- **HiveOS 지원 (실험적):** HiveOS 커스텀 채굴기 (custom miner) 패키지와 가져오기 가능한 플라이트 시트 (flight sheet) (아래 HiveOS 섹션 참고).
-- **안전한 업그레이드:** 이전 버전이 아직 채굴 중이면 새 버전은 시작을 거부합니다 (먼저 중지하라고 안내합니다).
-  `--stop` 후에는 프로그램 파일을 스스로 다시 설치하며, 설정과 모델은 그대로 유지합니다.
-- **`--background`는 채굴기가 바로 종료되면 더 이상 "시작됨"으로 표시하지 않습니다.** 대신 이유를 보여 줍니다.
-- **Docker 및 작은 공유 메모리:** 메모리 내 폴더가 너무 작거나 (Docker 기본값은 64 MiB) 프로그램 실행을 허용하지
-  않으면, 채굴기는 대신 디스크의 `thenewminer/.miner/run/`을 사용하고 이를 알려 줍니다.
-- **이제 풀 비밀번호에 눈에 보이는 모든 문자를 사용할 수 있습니다** (문장 부호와 영어 이외의 문자 포함): 6–128자,
-  공백 불가.
-- 더 많은 Linux 시스템 지원: 설치 프로그램이 몇몇 Ubuntu 버전만 허용하는 대신, 필요한 것 (glibc 2.34 이상)이
-  있는지 확인합니다.
+채굴하려면 풀 계정이 필요합니다. 즉 TSC 수령 주소 (지갑)와 풀 웹사이트에서 직접 정하는 풀 비밀번호입니다. 사이트에는
+영어 버전이 있습니다 (사이트의 언어 메뉴를 사용하세요).
+
+1. [tsc.the-new.win](https://tsc.the-new.win/#/home)을 열고 **Start mining** (开始挖矿)으로 이동합니다.
+2. **1. Bind Wallet** 아래에 **TSC payout address**를 입력하고 (`tc1...`; 신중하게 확인하세요: 잘못된 주소로 보내진 채굴
+   수입은 되찾을 수 없습니다), **Pool Password** (6–128자)를 정한 다음 **Confirm Password**에 다시 입력합니다.
+3. **Apply to join pool**을 클릭합니다. 페이지에 지갑이 연결되었다고 표시되며, 계정은 바로 사용할 수 있습니다.
+4. 채굴기에서도 같은 지갑과 비밀번호를 사용하세요. Linux에서는 `-u <YOUR_WALLET> -p '<YOUR_POOL_PASSWORD>'`,
+   Windows에서는 `TheNewMiner.bat`의 질문, HiveOS에서는 플라이트 시트에 입력합니다. 시작 후 약 3–5분이 지나면 풀
+   웹사이트의 **My Miners**에 리그가 표시됩니다.
+
+풀은 잊어버린 풀 비밀번호를 복구할 수 없으며, 수령 주소는 나중에 변경할 수 없습니다. 풀 비밀번호는 지갑의 개인 키가
+아닙니다. 개인 키는 절대 누구에게도 알려 주지 마세요.
+
+## v0.1.46의 새로운 기능
+
+- **RTX 30 시리즈 카드와 HiveOS에서 첫 시작 실패가 줄었습니다.** 한 번만 실행되는 GPU 검사가 이제 지원되는 모든 카드 계열용으로 미리 컴파일된 GPU 코드를 사용하며, 설치 중에 이미 한 번
+  실행됩니다. GPU 컴파일 캐시는 시작과 업그레이드 사이에도 유지됩니다. 그래도 RTX 30 시리즈 카드에서 검사가 시간 초과되면 채굴기는 그 단계를 대신 CPU에서 수행하고 계속 채굴합니다. 카드 구성을 준비할
+  수 없으면 채굴기가 `Reason:` 한 줄로 이유를 알려 줍니다 (종료 코드 78).
+- **HiveOS:** 첫 시작 시 채굴기가 GPU용 구성을 준비할 수 없으면 (종료 코드 78) 리그는 이제 몇 초마다 다시 시작하는 대신, 대기 시간을 점점 늘려 가며 (일 분에서 십 분까지) 다시 시도합니다.
+- **더 매끄러운 웨이브 (wave):** 웨이브 도중에 풀의 체크포인트 (checkpoint)가 바뀌면, 이제 다음 웨이브의 작업을
+  백그라운드에서 다시 준비합니다. RTX 5090에서는 그 순간의 대기가 사라졌습니다 (지속 해시레이트 +0.3%, 결과 동일).
+- **비밀번호가 거부된 후 메모리에 아무것도 남지 않습니다:** 중지 후 `--status`와 `--logs`를 실행해도 압축 해제된
+  프로그램 파일 (약 1.5 GB)이 더 이상 메모리에 남지 않습니다.
+- **이미 모델이 있나요?** 다시 다운로드하지 말고 복사하세요. 아래 섹션을 참고하세요.
+
+v0.1.45의 변경 사항은 [`RELEASE-NOTES-v0.1.45.md`](RELEASE-NOTES-v0.1.45.md)에 있습니다.
 
 ## 다운로드
 
 | 파일 | 대상 | SHA-256 |
 |---|---|---|
-| [`TheNewMiner-v0.1.45-linux-x86_64-sealed.tar.xz`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.45/TheNewMiner-v0.1.45-linux-x86_64-sealed.tar.xz) | Linux x86_64 | `6281bf489fae843551114f09ead5498d3e47af33a07e4cfdfbdc0a5d6bdbafbb` |
-| [`TheNewMiner-v0.1.45-windows-wsl2-r1.zip`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.45/TheNewMiner-v0.1.45-windows-wsl2-r1.zip) | Windows 10 / 11 (WSL2를 통해 실행) | `90732441b0dc67de84809d9bf3bda4441c0bf7cd9a52fefb95d29242ad7b15e7` |
-| [`SHA256SUMS`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.45/SHA256SUMS) | 모든 패키지의 체크섬 | |
+| [`TheNewMiner-v0.1.46-linux-x86_64-sealed.tar.xz`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.46/TheNewMiner-v0.1.46-linux-x86_64-sealed.tar.xz) | Linux x86_64 | `3585360e80993176475b6e400258888b4ddf8cb130ff97574e74e15cf1e248a8` |
+| [`TheNewMiner-v0.1.46-windows-wsl2-r1.zip`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.46/TheNewMiner-v0.1.46-windows-wsl2-r1.zip) | Windows 10 / 11 (WSL2를 통해 실행) | `dd9cb395e4012bfb81a5b9f0a1fdfd196955b781265a4a4e0d67266bd67b6a9e` |
+| [`SHA256SUMS`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.46/SHA256SUMS) | 모든 패키지의 체크섬 | |
 
 Windows용 zip은 올인원입니다. Linux 채굴기가 이미 들어 있으므로 zip만 있으면 됩니다.
 
@@ -50,19 +63,20 @@ shasum -a 256 -c --ignore-missing SHA256SUMS
 
 ```bat
 :: Windows (명령 프롬프트): 출력값을 위 표의 SHA-256과 비교하세요
-certutil -hashfile TheNewMiner-v0.1.45-windows-wsl2-r1.zip SHA256
+certutil -hashfile TheNewMiner-v0.1.46-windows-wsl2-r1.zip SHA256
 ```
 
 각 파일은 `OK`로 표시되어야 합니다 (Windows에서는 표와 동일한 64자). 일치하지 않으면 사용하지 마세요.
 
 ## 원클릭 설치 (Linux)
 
-이 명령 끝에 있는 `<YOUR_WALLET>`, `<YOUR_POOL_PASSWORD>`, `<RIG_NAME>`을 (`<` `>` 포함) 바꾼 다음, 터미널에
-붙여 넣으세요. 이 버전의 Linux 패키지와 `SHA256SUMS`를 다운로드하고 (`curl`을 사용하며, `wget`은 `curl`이 없을
+먼저 풀 계정을 만드세요 (위의 "시작하기 전에" 참조). 그런 다음 이 명령 끝에 있는 `<YOUR_WALLET>`,
+`<YOUR_POOL_PASSWORD>`, `<RIG_NAME>`을 (`<` `>` 포함) 각각 자신의 지갑, 풀 비밀번호, 이 리그의 이름으로 바꾼 다음,
+터미널에 붙여 넣으세요. 이 버전의 Linux 패키지와 `SHA256SUMS`를 다운로드하고 (`curl`을 사용하며, `wget`은 `curl`이 없을
 때 사용), SHA-256을 확인한 뒤, 채굴기를 `~/thenewminer`에 압축 해제하고 백그라운드에서 시작합니다:
 
 ```bash
-mkdir -p ~/thenewminer-download && cd ~/thenewminer-download && V=v0.1.45 && P=TheNewMiner-$V-linux-x86_64-sealed.tar.xz && U=https://github.com/ngasuka855/TheNewMiner/raw/$V && rm -f "$P" SHA256SUMS && if command -v curl >/dev/null 2>&1; then curl -fL -o "$P" "$U/$P" && curl -fL -o SHA256SUMS "$U/SHA256SUMS"; else wget -O "$P" "$U/$P" && wget -O SHA256SUMS "$U/SHA256SUMS"; fi && sha256sum -c --ignore-missing SHA256SUMS && tar -xJf "$P" -C ~ && cd ~/thenewminer && ./thenewminer -u <YOUR_WALLET> -p '<YOUR_POOL_PASSWORD>' -w <RIG_NAME> --background
+mkdir -p ~/thenewminer-download && cd ~/thenewminer-download && V=v0.1.46 && P=TheNewMiner-$V-linux-x86_64-sealed.tar.xz && U=https://github.com/ngasuka855/TheNewMiner/raw/$V && rm -f "$P" SHA256SUMS && if command -v curl >/dev/null 2>&1; then curl -fL -o "$P" "$U/$P" && curl -fL -o SHA256SUMS "$U/SHA256SUMS"; else wget -O "$P" "$U/$P" && wget -O SHA256SUMS "$U/SHA256SUMS"; fi && sha256sum -c --ignore-missing SHA256SUMS && tar -xJf "$P" -C ~ && cd ~/thenewminer && ./thenewminer -u <YOUR_WALLET> -p '<YOUR_POOL_PASSWORD>' -w <RIG_NAME> --background
 ```
 
 실패하는 첫 단계에서 멈춥니다. 다운로드 오류나 SHA-256 불일치가 있으면 아무것도 시작되지 않습니다 (이 검사는
@@ -77,7 +91,7 @@ mkdir -p ~/thenewminer-download && cd ~/thenewminer-download && V=v0.1.45 && P=T
 ## Linux
 
 ```bash
-tar -xJf TheNewMiner-v0.1.45-linux-x86_64-sealed.tar.xz
+tar -xJf TheNewMiner-v0.1.46-linux-x86_64-sealed.tar.xz
 cd thenewminer
 ./thenewminer -u <YOUR_WALLET> -p '<YOUR_POOL_PASSWORD>' -w rig-01 --background
 ```
@@ -98,7 +112,7 @@ cd thenewminer
   예: `-p 'my$pass!'` (작은따옴표 안의 `'`는 `'\''`로 씁니다).
 - 설정은 `thenewminer/.miner/`에 기억됩니다 (비밀번호가 담긴 파일은 본인만 읽을 수 있습니다). 지갑과 비밀번호는
   즉시 명령줄에서 제거되므로 `ps`에 보이지 않습니다 (단, 셸의 명령 기록에는 남아 있을 수 있습니다).
-- 풀이 지갑이나 비밀번호를 거부하면 (또는 아직 계정을 승인하지 않았다면) 채굴기가 이를 알리고 중지합니다.
+- 풀이 지갑이나 비밀번호를 거부하면 채굴기가 이를 알리고 중지합니다.
   확인한 뒤 `-u`와 `-p`로 다시 시작하세요.
 - 첫 실행 시 모델 (약 8.1 GiB, 한 번만)을 다운로드하고, 카드에 맞는 GPU 엔진을 설치하고, 카드에서
   자체 점검을 실행한 뒤 채굴을 시작합니다. `[ RATE] ... N/s` 같은 줄이 보이면 채굴 중입니다.
@@ -115,7 +129,7 @@ cd thenewminer
 
 ## Windows (원클릭)
 
-1. `TheNewMiner-v0.1.45-windows-wsl2-r1.zip` 전체를 압축 해제하세요 (마우스 오른쪽 버튼 클릭 › 모두 압축 풀기). 위치는 어느 폴더, 어느
+1. `TheNewMiner-v0.1.46-windows-wsl2-r1.zip` 전체를 압축 해제하세요 (마우스 오른쪽 버튼 클릭 › 모두 압축 풀기). 위치는 어느 폴더, 어느
    드라이브든 상관없으며, 공백이나 중국어 문자가 포함된 경로도 괜찮습니다. zip 내용 보기 화면 안에서 바로 실행하지 마세요.
 2. **`TheNewMiner.bat`**을 더블 클릭하세요.
    - **처음 실행 시:** Windows, 드라이버, 디스크를 확인하고 필요하면 WSL2를 켭니다 (관리자 확인 창이 한 번 표시됩니다.
@@ -151,12 +165,12 @@ cd thenewminer
 
 ## HiveOS (실험적)
 
-HiveOS 지원은 v0.1.45에 새로 추가되었으며 **실험적** 기능입니다. 아래의 HiveOS 커스텀 채굴기 (custom miner)
-패키지를 사용합니다.
+HiveOS 지원은 **실험적** 기능입니다 (v0.1.45부터 제공, v0.1.45는 실제 HiveOS 리그에서 실행되었지만 v0.1.46의 첫 시작 관련 변경 사항은 아직 HiveOS 리그에서 실행되지 않음).
+아래의 HiveOS 커스텀 채굴기 (custom miner) 패키지를 사용합니다.
 
 | 파일 | SHA-256 |
 |---|---|
-| [`thenewminer-0.1.45.tar.gz`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.45/thenewminer-0.1.45.tar.gz) | `90576efd388ceeca4e456b62b568f267465320913a07c9f9736f42363b1701dc` |
+| [`thenewminer-0.1.46.tar.gz`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.46/thenewminer-0.1.46.tar.gz) | `2284c258176e6b372bf56947a343116688e773dee2d479a7f5f125ad9f0a1915` |
 
 빠른 설정 (플라이트 시트 가져오기):
 
@@ -174,7 +188,7 @@ HiveOS 지원은 v0.1.45에 새로 추가되었으며 **실험적** 기능입니
 | 필드 | 값 |
 |---|---|
 | Miner name | `thenewminer` (Installation URL에서 자동으로 채워짐) |
-| Installation URL | `https://github.com/ngasuka855/TheNewMiner/raw/v0.1.45/thenewminer-0.1.45.tar.gz` |
+| Installation URL | `https://github.com/ngasuka855/TheNewMiner/raw/v0.1.46/thenewminer-0.1.46.tar.gz` |
 | Hash algorithm | 비워 둠 |
 | Wallet and worker template | `%WAL%.%WORKER_NAME%` |
 | Pool URL | `tsc-wss.the-new.win` (무시됨: 풀이 내장되어 있음) |
@@ -189,27 +203,63 @@ HiveOS 지원은 v0.1.45에 새로 추가되었으며 **실험적** 기능입니
 - 풀이 지갑이나 비밀번호를 거부하면 채굴기 로그에 그 사실이 표시되고, HiveOS가 채굴기를 다시 시작하기 전에 10분간
   대기합니다. 플라이트 시트를 수정해 적용하세요 (적용하면 채굴기가 즉시 다시 시작됩니다).
 - 로그: HiveOS의 채굴기 화면 (리그 셸에서 `miner`) 또는 `/var/log/miner/custom/custom.log`.
-- **업그레이드:** Installation URL의 두 버전 번호를 모두 바꾸고 (예: `.../raw/v0.1.46/thenewminer-0.1.46.tar.gz`)
+- **업그레이드:** Installation URL의 두 버전 번호를 모두 바꾸고 (예: `.../raw/vX.Y.Z/thenewminer-X.Y.Z.tar.gz`)
   플라이트 시트를 적용하세요. HiveOS는 URL의 파일 이름이 바뀔 때만 설치합니다.
-- **첫 시작은 시간이 걸립니다:** 모델 다운로드 후 RTX 30 시리즈 카드에서는 한 번만 실행되는 GPU 검사가 느린 리그
-  디스크에서 시간 초과될 수 있으며, 그러면 HiveOS가 채굴기를 스스로 두세 번 다시 시작합니다 (약 8분). 그대로 두세요. 그
-  후 채굴을 시작합니다.
-- **이미 모델이 있나요?** 첫 시작 전에 `Qwen3-8B-Q8_0-full-v2.gguf` (약 8.1 GiB, 정확히 이 파일 이름)를 리그의
-  `/home/user/`에 복사하세요. 채굴기가 이 파일을 찾아 SHA-256을 확인하고, 다시 다운로드하는 대신 이 파일을 사용합니다.
+- **첫 시작** 시 모델을 다운로드하고 GPU 엔진을 설치하므로 몇 분이 걸립니다. 그 후 채굴기가 GPU용 구성을 준비할 수 없으면 로그의 `Reason:` 줄에 이유가 표시되고, HiveOS가 대기 시간을
+  점점 늘려 가며 (일 분에서 십 분까지) 다시 시도합니다.
+- **이미 모델이 있나요?** 첫 시작 전에 리그의 `/home/user/`에 복사하세요 (다음 섹션 참고).
 
-**리그가 GitHub에 접속할 수 없다면:** PC에서 `thenewminer-0.1.45.tar.gz`를 다운로드하고 (위 표에서 SHA-256을
+**리그가 GitHub에 접속할 수 없다면:** PC에서 `thenewminer-0.1.46.tar.gz`를 다운로드하고 (위 표에서 SHA-256을
 확인하세요), 리그로 복사한 뒤 HiveOS가 사용자 지정 채굴기를 두는 위치에 압축을 풉니다. 그런 다음 평소처럼 플라이트
 시트를 적용하세요. HiveOS가 "Already installed"라고 표시하고 다운로드하지 않습니다. 파일 이름은 정확히
-`thenewminer-0.1.45.tar.gz`로 유지하고 (브라우저가 " (1)"을 붙일 수 있습니다), 플라이트 시트의 Installation URL은 바꾸지
+`thenewminer-0.1.46.tar.gz`로 유지하고 (브라우저가 " (1)"을 붙일 수 있습니다), 플라이트 시트의 Installation URL은 바꾸지
 마세요. HiveOS가 이 이름을 비교합니다.
 
 ```bash
 # PC에서
-scp thenewminer-0.1.45.tar.gz user@<RIG_IP>:/tmp/
+scp thenewminer-0.1.46.tar.gz user@<RIG_IP>:/tmp/
 # 리그에서 root로 (Hive Shell, 또는 SSH 접속 후 sudo -i)
 mkdir -p /hive/miners/custom/downloads
-mv /tmp/thenewminer-0.1.45.tar.gz /hive/miners/custom/downloads/
-cd /hive/miners/custom && tar -xzf downloads/thenewminer-0.1.45.tar.gz
+mv /tmp/thenewminer-0.1.46.tar.gz /hive/miners/custom/downloads/
+cd /hive/miners/custom && tar -xzf downloads/thenewminer-0.1.46.tar.gz
+```
+
+## 이미 모델이 있나요? 복사하세요
+
+채굴기에는 8.1 GiB 모델 파일 하나가 필요합니다: `Qwen3-8B-Q8_0-full-v2.gguf` (`8709518112` 바이트, SHA-256
+`408b955510e196121c1c375201744783b5c9a43c7956d73fc78df54c66e883d6`). 이 컴퓨터나 네트워크의 다른 컴퓨터에 이미 있다면
+다시 다운로드하지 말고 복사하세요.
+
+채굴기는 무엇이든 다운로드하기 전에 정확한 이름과 크기로 파일을 찾습니다. 찾는 위치는 자체 모델 폴더, 이전 TheNewMiner 폴더, 홈 폴더 (와 그 아래 한두 단계의 폴더, 또는 그 안의 `models`
+폴더), `/home` 아래의 홈 폴더들, `/data`, `/mnt/*`, `/media/*`, `/opt`, `/srv`, `/workspace`, `/var/lib`, 그리고 Hugging
+Face / ModelScope 캐시입니다. 그곳에서 찾지 못하면 같은 디스크에 있는 그 폴더들에서 크기가 정확히 같은 `.gguf` 파일을 최대 20초 동안 검색합니다 (마운트된 다른 디스크는 이름으로만
+확인합니다). 찾은 파일은 **SHA-256이 일치할 때만** 사용되며, 채굴기는 그 파일을 자체 모델 폴더에 링크하거나 (같은 디스크인 경우) 복사하므로 이후의 모든 버전이 바로 찾을 수 있습니다. 파일을 직접
+지정할 수도 있습니다: `./thenewminer --model /path/to/Qwen3-8B-Q8_0-full-v2.gguf`.
+
+**Linux:** 홈 폴더에 복사한 다음 평소처럼 채굴기를 시작하세요. 같은 네트워크의 Mac이나 PC에서 복사하려면 (Windows 10과
+11의 PowerShell에는 `scp`가 있습니다), `user`와 `<MINER_IP>`를 채굴기의 로그인 이름과 주소로 바꾸세요:
+
+```bash
+# 채굴기 컴퓨터에서 직접
+cp /path/to/Qwen3-8B-Q8_0-full-v2.gguf ~/
+# 또는 다른 컴퓨터에서
+scp Qwen3-8B-Q8_0-full-v2.gguf user@<MINER_IP>:~/
+```
+
+**HiveOS:** 리그의 `/home/user/`에 복사한 다음 (HiveOS의 SSH 로그인은 `user`), 플라이트 시트를 적용하세요. 채굴기가 그곳에서 파일을 찾아 확인한 뒤 패키지 옆
+(`/hive/miners/custom/.thenewminer-models`)에 보관하므로, 새 버전이 다시 다운로드하는 일은 없습니다. HiveOS의 디스크는 작습니다. 먼저 `disk-expand`를 실행하세요
+(`df -h /hive/miners`에서 여유 공간이 12 GB 미만으로 표시되는 경우).
+
+```bash
+scp Qwen3-8B-Q8_0-full-v2.gguf user@<RIG_IP>:/home/user/
+```
+
+**Windows:** 첫 `setup`이 TheNewMiner의 WSL 배포판을 만든 후, 명령 프롬프트에서 파일을 그 안으로 복사하세요 (`D:\Models`는 복사본이 있는 위치로 바꾸세요). 다운로드가 이미
+시작되었다면 창을 닫고 이 명령을 실행한 다음 TheNewMiner를 다시 시작하세요. 복사본을 찾아 다운로드를 건너뜁니다. 복사에는 몇 분이 걸리며 진행 상황은 표시되지 않습니다.
+
+```bat
+wsl -d TheNewMiner -u root -- mkdir -p ~/thenewminer/models
+wsl -d TheNewMiner -u root -- cp /mnt/d/Models/Qwen3-8B-Q8_0-full-v2.gguf ~/thenewminer/models/
 ```
 
 ## 지갑, 풀 비밀번호 또는 워커 이름 변경
@@ -316,6 +366,8 @@ nvidia-smi    # 헤더에 "Driver Version: ..."이 표시되며, 580 이상이�
 
 | 날짜 | 카드 | OS | 패키지 | 해시레이트 | A / R |
 |---|---|---|---|---|---|
+| 2026-10-23 | RTX 5090 | Linux | v0.1.46 출시 빌드 | 95.41 N/s (안정 채굴, 12분; 작업 전환 포함 시 91.70) | 10 / 0 (stale +1; 무효 0) |
+| 2026-10-23 | RTX 4090 | Linux | v0.1.46 출시 빌드 | 66.23 N/s (중앙값, 10분) | 2 / 0 |
 | 2026-10-23 | RTX 4090 | Linux | v0.1.45 출시 빌드 | 65.42 N/s (안정 채굴, 16분; 작업 전환 포함 시 62.35) | 13 / 0 (무효 0) |
 | 2026-10-23 | RTX 5090 | Linux | v0.1.45 출시 빌드 | 94.18 N/s (안정 채굴; 작업 전환 포함 시 92.24) | 17 / 0 (무효 0) |
 | 2026-10-23 | RTX 4090 | Linux | v0.1.44 sealed-r4 | 65.58 N/s (중앙값, 16분) | 10 / 0 |
@@ -356,13 +408,20 @@ SHA-256이 일치하는 패키지에 대해서만 이렇게 하세요.
 진행할 수 있습니다. 이 과정은 한 번만 일어납니다. 이후 실행에서는 훨씬 빨리 채굴이 시작됩니다.
 
 **채굴기가 풀이 지갑 / 비밀번호를 거부했다고 표시합니다.**
-지갑 주소와 풀 비밀번호를 확인하고 (풀이 계정을 승인했는지도 확인하세요), 다시 시작하세요:
+지갑 주소와 풀 비밀번호를 확인하고 (계정이 풀 웹사이트에 있어야 합니다), 다시 시작하세요:
 Linux `./thenewminer -u <YOUR_WALLET> -p '<YOUR_POOL_PASSWORD>'`, Windows `TheNewMiner.bat setup`. 채굴기는 잘못된
 인증 정보로 스스로 재시도하지 않습니다.
 
 **채굴 중인가요? 로그는 어디에 있나요?**
 Linux: `./thenewminer --status`, `./thenewminer --logs` 또는 파일 `thenewminer/.miner/thenewminer.log`.
 Windows: `TheNewMiner.bat status` 및 `TheNewMiner.bat logs`.
+
+## 문제 신고
+
+[GitHub Issues](https://github.com/ngasuka855/TheNewMiner/issues/new/choose)에서 이슈를 열고 버그 신고 양식을
+작성하세요: TheNewMiner 버전, 시스템, GPU 모델과 드라이버, `./thenewminer --status` 출력, 마지막 로그 줄. 이슈는
+공개됩니다. **풀 비밀번호나 지갑의 개인 키는 절대 게시하지 마세요**. 붙여 넣는 내용에서는 비밀번호를 (원한다면 지갑
+주소도) 제거하세요.
 
 ## 보안 참고 사항
 

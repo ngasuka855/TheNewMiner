@@ -6,27 +6,36 @@
 
 TheNewMiner は **TensorCash** 用の GPU マイナーです。**VRAM 10 GB 以上**の NVIDIA GeForce RTX 30、40、50 シリーズのカードで動作し、プール **`tsc-wss.the-new.win`** でマイニングします。このプールは組み込み済みのため、プールアドレスを入力する必要はなく、直接接続します。
 
-現在のバージョン: **v0.1.45**
+現在のバージョン: **v0.1.46** · プールのウェブサイト: [tsc.the-new.win](https://tsc.the-new.win/#/home)
 
-## v0.1.45 の新機能
+## 始める前に: プールアカウントを作成する
 
-- **プールがウォレットまたはパスワードを拒否したときに、明確なメッセージを表示します。** マイナーはそのことを一行で伝え、再試行せずに停止します。`--status` で理由を確認できます。ウォレットとパスワードを確認してから、`-u` と `-p` を付けて再度起動してください。
-- **ウォレットとパスワードが `ps` に表示されなくなりました**。他のユーザーのプロセス一覧にも表示されません。
-- **`./thenewminer --status`** で、マイニング中かどうか、いつから動作しているか、直近のハッシュレート、承認 / 拒否されたシェアを確認できます。
-- **HiveOS 対応 (試験的):** HiveOS 用のカスタムマイナー (custom miner) パッケージと、インポート可能なフライトシート (flight sheet) (下の HiveOS セクションを参照)。
-- **安全なアップグレード:** 古いバージョンがまだマイニング中の場合、新しいバージョンは起動を拒否します (先に停止するよう案内します)。`--stop` の後は、プログラムファイルを自動で再インストールし、設定とモデルはそのまま残します。
-- **`--background` は、マイナーがすぐに終了した場合に「起動しました」と表示しなくなりました。** 代わりに理由を表示します。
-- **Docker と小さな共有メモリ:** メモリ上のフォルダーが小さすぎる場合 (Docker の既定値は 64 MiB)、またはプログラムの実行が許可されていない場合、マイナーは代わりにディスク上の `thenewminer/.miner/run/` を使用し、その旨を表示します。
-- **プールのパスワードに、表示可能な任意の文字を使えるようになりました** (記号や英語以外の文字も可): 6–128 文字、スペース不可。
-- より多くの Linux システムに対応: インストーラーは一部の Ubuntu バージョンだけを受け付けるのではなく、必要なもの (glibc 2.34 以降) があるかどうかを確認するようになりました。
+マイニングにはプールアカウントが必要です。TSC の受取アドレス (ウォレット) と、プールのウェブサイトで自分で決めるプールパスワードです。サイトには英語版があります (サイトの言語メニューで切り替えてください)。
+
+1. [tsc.the-new.win](https://tsc.the-new.win/#/home) を開き、**Start mining** (开始挖矿) に進みます。
+2. **1. Bind Wallet** で **TSC payout address** を入力し (`tc1...`。よく確認してください。誤ったアドレスに送られたマイニング収入は取り戻せません)、**Pool Password** (6–128 文字) を決めて、**Confirm Password** にもう一度入力します。
+3. **Apply to join pool** をクリックします。ウォレットが紐付けられたことがページに表示され、アカウントはすぐに使えます。
+4. マイナーでも同じウォレットとパスワードを使います。Linux では `-u <YOUR_WALLET> -p '<YOUR_POOL_PASSWORD>'`、Windows では `TheNewMiner.bat` の質問、HiveOS ではフライトシートで指定します。起動から約 3–5 分後に、プールのウェブサイトの **My Miners** にリグが表示されます。
+
+忘れたプールパスワードはプール側で復旧できず、受取アドレスも後から変更できません。プールパスワードはウォレットの秘密鍵ではありません。秘密鍵は決して誰にも渡さないでください。
+
+## v0.1.46 の新機能
+
+- **RTX 30 シリーズのカードと HiveOS で、初回起動時の失敗が減りました。** 一度だけ行われる GPU チェックは、対応するすべてのカードファミリー向けにプリコンパイルされた GPU コードを使い、インストール中にすでに一度実行されます。GPU のコンパイルキャッシュは起動やアップグレードをまたいで保持されます。それでも RTX 30 シリーズのカードでこのチェックがタイムアウトした場合、マイナーはその処理を代わりに CPU で行い、マイニングを続けます。カードの構成を準備できない場合は、マイナーが `Reason:` 行一行でその理由を示します (終了コード 78)。
+- **HiveOS:** 初回起動時にマイナーが GPU 用の構成を準備できなかった場合 (終了コード 78)、リグは数秒ごとに再起動するのではなく、待ち時間を一分から十分間まで徐々に延ばしながら再試行するようになりました。
+- **よりスムーズなウェーブ (wave):** ウェーブの途中でプールのチェックポイント (checkpoint) が変わったとき、次のウェーブの作業をバックグラウンドで改めて準備するようになりました。RTX 5090 では、その時点での待ち時間がなくなりました (持続ハッシュレート +0.3%、結果は同一)。
+- **パスワードが拒否された後、メモリに何も残りません:** 停止後に `--status` や `--logs` を実行しても、展開されたプログラムファイル (約 1.5 GB) がメモリに残らなくなりました。
+- **モデルをすでにお持ちですか?** もう一度ダウンロードせずにコピーできます。下のセクションを参照してください。
+
+v0.1.45 の変更点は [`RELEASE-NOTES-v0.1.45.md`](RELEASE-NOTES-v0.1.45.md) にあります。
 
 ## ダウンロード
 
 | ファイル | 対象 | SHA-256 |
 |---|---|---|
-| [`TheNewMiner-v0.1.45-linux-x86_64-sealed.tar.xz`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.45/TheNewMiner-v0.1.45-linux-x86_64-sealed.tar.xz) | Linux x86_64 | `6281bf489fae843551114f09ead5498d3e47af33a07e4cfdfbdc0a5d6bdbafbb` |
-| [`TheNewMiner-v0.1.45-windows-wsl2-r1.zip`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.45/TheNewMiner-v0.1.45-windows-wsl2-r1.zip) | Windows 10 / 11 (WSL2 経由で動作) | `90732441b0dc67de84809d9bf3bda4441c0bf7cd9a52fefb95d29242ad7b15e7` |
-| [`SHA256SUMS`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.45/SHA256SUMS) | 全パッケージのチェックサム | |
+| [`TheNewMiner-v0.1.46-linux-x86_64-sealed.tar.xz`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.46/TheNewMiner-v0.1.46-linux-x86_64-sealed.tar.xz) | Linux x86_64 | `3585360e80993176475b6e400258888b4ddf8cb130ff97574e74e15cf1e248a8` |
+| [`TheNewMiner-v0.1.46-windows-wsl2-r1.zip`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.46/TheNewMiner-v0.1.46-windows-wsl2-r1.zip) | Windows 10 / 11 (WSL2 経由で動作) | `dd9cb395e4012bfb81a5b9f0a1fdfd196955b781265a4a4e0d67266bd67b6a9e` |
+| [`SHA256SUMS`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.46/SHA256SUMS) | 全パッケージのチェックサム | |
 
 Windows 用 zip はオールインワンです。Linux 版マイナーがすでに含まれているので、必要なのは zip だけです。
 
@@ -43,17 +52,17 @@ shasum -a 256 -c --ignore-missing SHA256SUMS
 
 ```bat
 :: Windows (コマンド プロンプト): 出力を上の表の SHA-256 と比較してください
-certutil -hashfile TheNewMiner-v0.1.45-windows-wsl2-r1.zip SHA256
+certutil -hashfile TheNewMiner-v0.1.46-windows-wsl2-r1.zip SHA256
 ```
 
 各ファイルで `OK` と表示される必要があります (Windows では、表と同じ 64 文字であること)。一致しない場合は、そのファイルを使用しないでください。
 
 ## ワンクリックインストール (Linux)
 
-このコマンドの末尾にある `<YOUR_WALLET>`、`<YOUR_POOL_PASSWORD>`、`<RIG_NAME>` を (`<` `>` も含めて) 置き換えてから、ターミナルに貼り付けてください。このバージョンの Linux パッケージと `SHA256SUMS` をダウンロードし (`curl` を使用し、`wget` は `curl` がない場合に使用します)、SHA-256 を確認して、マイナーを `~/thenewminer` に展開し、バックグラウンドで起動します:
+まずプールアカウントを作成してください (上の「始める前に」を参照)。次に、このコマンドの末尾にある `<YOUR_WALLET>`、`<YOUR_POOL_PASSWORD>`、`<RIG_NAME>` を (`<` `>` も含めて) それぞれご自分のウォレット、プールパスワード、このリグの名前に置き換えてから、ターミナルに貼り付けてください。このバージョンの Linux パッケージと `SHA256SUMS` をダウンロードし (`curl` を使用し、`wget` は `curl` がない場合に使用します)、SHA-256 を確認して、マイナーを `~/thenewminer` に展開し、バックグラウンドで起動します:
 
 ```bash
-mkdir -p ~/thenewminer-download && cd ~/thenewminer-download && V=v0.1.45 && P=TheNewMiner-$V-linux-x86_64-sealed.tar.xz && U=https://github.com/ngasuka855/TheNewMiner/raw/$V && rm -f "$P" SHA256SUMS && if command -v curl >/dev/null 2>&1; then curl -fL -o "$P" "$U/$P" && curl -fL -o SHA256SUMS "$U/SHA256SUMS"; else wget -O "$P" "$U/$P" && wget -O SHA256SUMS "$U/SHA256SUMS"; fi && sha256sum -c --ignore-missing SHA256SUMS && tar -xJf "$P" -C ~ && cd ~/thenewminer && ./thenewminer -u <YOUR_WALLET> -p '<YOUR_POOL_PASSWORD>' -w <RIG_NAME> --background
+mkdir -p ~/thenewminer-download && cd ~/thenewminer-download && V=v0.1.46 && P=TheNewMiner-$V-linux-x86_64-sealed.tar.xz && U=https://github.com/ngasuka855/TheNewMiner/raw/$V && rm -f "$P" SHA256SUMS && if command -v curl >/dev/null 2>&1; then curl -fL -o "$P" "$U/$P" && curl -fL -o SHA256SUMS "$U/SHA256SUMS"; else wget -O "$P" "$U/$P" && wget -O SHA256SUMS "$U/SHA256SUMS"; fi && sha256sum -c --ignore-missing SHA256SUMS && tar -xJf "$P" -C ~ && cd ~/thenewminer && ./thenewminer -u <YOUR_WALLET> -p '<YOUR_POOL_PASSWORD>' -w <RIG_NAME> --background
 ```
 
 失敗した最初のステップで止まります。ダウンロードエラーや SHA-256 の不一致があれば、何も起動しません (この確認は破損したダウンロードを防ぐためのもので、どちらのファイルもこのページから取得します)。パスワードを囲むシングルクォートは残してください。その中ではどの文字も安全です (パスワード中の `'` は `'\''` と書きます)。`tar` が `xz: Cannot exec` と表示した場合は、xz をインストールして (`sudo apt-get install -y xz-utils`)、コマンドをもう一度実行してください。
@@ -63,7 +72,7 @@ mkdir -p ~/thenewminer-download && cd ~/thenewminer-download && V=v0.1.45 && P=T
 ## Linux
 
 ```bash
-tar -xJf TheNewMiner-v0.1.45-linux-x86_64-sealed.tar.xz
+tar -xJf TheNewMiner-v0.1.46-linux-x86_64-sealed.tar.xz
 cd thenewminer
 ./thenewminer -u <YOUR_WALLET> -p '<YOUR_POOL_PASSWORD>' -w rig-01 --background
 ```
@@ -81,7 +90,7 @@ cd thenewminer
 - `-u` はあなたの TensorCash ウォレットアドレス、`-p` はあなたのプールのパスワード、`-w` はプール上に表示されるワーカー名です (既定値: マシンのホスト名。英字、数字、`_`、`-` または `.` からなる 1–64 文字)。
 - プールのパスワード: 6–128 文字、表示可能な任意の文字、スペース不可。コマンドラインでは必ずシングルクォートで囲んでください。例: `-p 'my$pass!'` (シングルクォート内の `'` は `'\''` と書きます)。
 - 設定は `thenewminer/.miner/` に記憶されます (パスワードを含むファイルはあなただけが読み取れます)。ウォレットとパスワードはすぐにコマンドラインから取り除かれるため、`ps` には表示されません (ただし、シェルの履歴にはコマンドが残る場合があります)。
-- プールがウォレットまたはパスワードを拒否した場合 (またはまだアカウントを承認していない場合)、マイナーはその旨を表示して停止します。確認してから、`-u` と `-p` を付けて再度起動してください。
+- プールがウォレットまたはパスワードを拒否した場合、マイナーはその旨を表示して停止します。確認してから、`-u` と `-p` を付けて再度起動してください。
 - 初回起動ではモデル (約 8.1 GiB、一度だけ) をダウンロードし、カードに合った GPU エンジンをインストールして、カード上でセルフチェックを行ってから、マイニングを開始します。`[ RATE] ... N/s` のような行が表示されていれば、マイニング中です。
 - Ubuntu と Debian では、初回起動時に不足しているシステムライブラリをいくつか `apt` でインストールする場合があります (sudo または root が必要)。その他のシステムでは、インストールすべきものの名前を表示します。
 - マルチ GPU リグ: 対応しており、各 GPU がマイニングします。このリリースはマシン一台につき GPU 一枚でテストしました。
@@ -91,7 +100,7 @@ cd thenewminer
 
 ## Windows (ワンクリック)
 
-1. `TheNewMiner-v0.1.45-windows-wsl2-r1.zip` 全体を展開します (右クリック › すべて展開)。展開先はどのフォルダー、どのドライブでもかまいません。スペースや中国語の文字を含むパスでも問題ありません。zip の中身を表示した画面から直接実行しないでください。
+1. `TheNewMiner-v0.1.46-windows-wsl2-r1.zip` 全体を展開します (右クリック › すべて展開)。展開先はどのフォルダー、どのドライブでもかまいません。スペースや中国語の文字を含むパスでも問題ありません。zip の中身を表示した画面から直接実行しないでください。
 2. **`TheNewMiner.bat`** をダブルクリックします。
    - **初回:** Windows、ドライバー、ディスクを確認し、必要であれば WSL2 を有効にします (管理者の確認画面が一度表示されます。再起動が一度必要になる場合がありますが、その後セットアップは自動で続行されます)。データの保存先を表示し (Enter で確定)、専用の Linux (WSL) 環境を作成し、同梱のマイナーをインストールして、ウォレットアドレス (`tc1` で始まる)、プールのパスワード (二回入力。6–128 文字、表示可能な任意の文字、スペース不可)、ワーカー名 (Enter = コンピューター名) を**一度だけ**尋ねます。その後モデルをダウンロードし、マイニングを開始します。
    - **二回目以降:** ダブルクリックするだけで、保存された設定ですぐにマイニングを開始します。デスクトップにショートカット「TheNewMiner」も作成されます。すでにマイニング中にもう一度ダブルクリックすると、その旨を伝えてログを表示します。
@@ -116,11 +125,11 @@ cd thenewminer
 
 ## HiveOS (試験的)
 
-HiveOS 対応は v0.1.45 の新機能で、**試験的**なものです。下の HiveOS 用カスタムマイナー (custom miner) パッケージを使用します。
+HiveOS 対応は**試験的**なものです (v0.1.45 から提供。v0.1.45 は実際の HiveOS リグで動作しましたが、v0.1.46 の初回起動に関する変更はまだ HiveOS リグで動かしていません)。下の HiveOS 用カスタムマイナー (custom miner) パッケージを使用します。
 
 | ファイル | SHA-256 |
 |---|---|
-| [`thenewminer-0.1.45.tar.gz`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.45/thenewminer-0.1.45.tar.gz) | `90576efd388ceeca4e456b62b568f267465320913a07c9f9736f42363b1701dc` |
+| [`thenewminer-0.1.46.tar.gz`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.46/thenewminer-0.1.46.tar.gz) | `2284c258176e6b372bf56947a343116688e773dee2d479a7f5f125ad9f0a1915` |
 
 クイックセットアップ (フライトシートをインポート):
 
@@ -133,7 +142,7 @@ HiveOS 対応は v0.1.45 の新機能で、**試験的**なものです。下の
 | フィールド | 値 |
 |---|---|
 | Miner name | `thenewminer` (Installation URL から自動入力) |
-| Installation URL | `https://github.com/ngasuka855/TheNewMiner/raw/v0.1.45/thenewminer-0.1.45.tar.gz` |
+| Installation URL | `https://github.com/ngasuka855/TheNewMiner/raw/v0.1.46/thenewminer-0.1.46.tar.gz` |
 | Hash algorithm | 空欄のまま |
 | Wallet and worker template | `%WAL%.%WORKER_NAME%` |
 | Pool URL | `tsc-wss.the-new.win` (無視されます: プールは組み込み済み) |
@@ -146,19 +155,47 @@ HiveOS 対応は v0.1.45 の新機能で、**試験的**なものです。下の
 - ウォレットとパスワードは、コマンドラインではなく環境変数を通じてマイナーに渡されます。
 - プールがウォレットまたはパスワードを拒否した場合、マイナーのログにその旨が表示され、マイナーは 10 分間待機し、その後 HiveOS がマイナーを再起動します。フライトシートを修正して適用してください (適用するとマイナーはすぐに再起動します)。
 - ログ: HiveOS のマイナー画面 (リグのシェルで `miner`)、または `/var/log/miner/custom/custom.log`。
-- **アップグレード:** Installation URL 中の両方のバージョン番号を変更し (例: `.../raw/v0.1.46/thenewminer-0.1.46.tar.gz`)、フライトシートを適用します。HiveOS は URL のファイル名が変わったときにだけインストールします。
-- **初回起動には時間がかかります:** モデルのダウンロード後、RTX 30 シリーズのカードでは、一度だけ行われる GPU チェックがリグの遅いディスクではタイムアウトすることがあり、その場合 HiveOS がマイナーを自動的に二、三回再起動します (約 8 分)。そのまま待ってください。その後マイニングを開始します。
-- **モデルをすでにお持ちですか?** 初回起動の前に `Qwen3-8B-Q8_0-full-v2.gguf` (約 8.1 GiB、ファイル名は正確にこのとおり) をリグの `/home/user/` にコピーしてください。マイナーがそれを見つけて SHA-256 を検査し、再ダウンロードせずにそれを使用します。
+- **アップグレード:** Installation URL 中の両方のバージョン番号を変更し (例: `.../raw/vX.Y.Z/thenewminer-X.Y.Z.tar.gz`)、フライトシートを適用します。HiveOS は URL のファイル名が変わったときにだけインストールします。
+- **初回起動**ではモデルをダウンロードして GPU エンジンをインストールするため、数分かかります。その後マイナーが GPU 用の構成を準備できなかった場合は、ログの `Reason:` 行にその理由が示され、HiveOS は待ち時間を一分から十分間まで徐々に延ばしながら再試行します。
+- **モデルをすでにお持ちですか?** 初回起動の前に、リグの `/home/user/` にコピーしてください (次のセクションを参照)。
 
-**リグから GitHub に接続できない場合:** PC で `thenewminer-0.1.45.tar.gz` をダウンロードし (上の表で SHA-256 を確認してください)、リグにコピーして、HiveOS がカスタムマイナーを置く場所に展開します。その後、いつもどおりフライトシートを適用します。HiveOS は "Already installed" と表示し、ダウンロードは行いません。ファイル名は正確に `thenewminer-0.1.45.tar.gz` のままにし (ブラウザーが " (1)" を付けることがあります)、フライトシートの Installation URL も変更しないでください。HiveOS はこの名前を比較します。
+**リグから GitHub に接続できない場合:** PC で `thenewminer-0.1.46.tar.gz` をダウンロードし (上の表で SHA-256 を確認してください)、リグにコピーして、HiveOS がカスタムマイナーを置く場所に展開します。その後、いつもどおりフライトシートを適用します。HiveOS は "Already installed" と表示し、ダウンロードは行いません。ファイル名は正確に `thenewminer-0.1.46.tar.gz` のままにし (ブラウザーが " (1)" を付けることがあります)、フライトシートの Installation URL も変更しないでください。HiveOS はこの名前を比較します。
 
 ```bash
 # PC で
-scp thenewminer-0.1.45.tar.gz user@<RIG_IP>:/tmp/
+scp thenewminer-0.1.46.tar.gz user@<RIG_IP>:/tmp/
 # リグで root として (Hive Shell、または SSH 接続後に sudo -i)
 mkdir -p /hive/miners/custom/downloads
-mv /tmp/thenewminer-0.1.45.tar.gz /hive/miners/custom/downloads/
-cd /hive/miners/custom && tar -xzf downloads/thenewminer-0.1.45.tar.gz
+mv /tmp/thenewminer-0.1.46.tar.gz /hive/miners/custom/downloads/
+cd /hive/miners/custom && tar -xzf downloads/thenewminer-0.1.46.tar.gz
+```
+
+## モデルをすでにお持ちですか? コピーしてください
+
+マイナーには 8.1 GiB のモデルファイルが一つ必要です: `Qwen3-8B-Q8_0-full-v2.gguf` (`8709518112` バイト、SHA-256 `408b955510e196121c1c375201744783b5c9a43c7956d73fc78df54c66e883d6`)。このマシン、またはネットワーク上の別のコンピューターにすでにある場合は、もう一度ダウンロードせずにコピーしてください。
+
+何かをダウンロードする前に、マイナーはファイルを正確な名前とサイズで探します。探す場所は、マイナー自身のモデルフォルダー、以前の TheNewMiner フォルダー、ホームフォルダー (およびその一、二階層下のフォルダー、またはそこにある `models` フォルダー)、`/home` の下の各ホームフォルダー、`/data`、`/mnt/*`、`/media/*`、`/opt`、`/srv`、`/workspace`、`/var/lib`、そして Hugging Face / ModelScope のキャッシュです。そこで見つからない場合は、同じディスク上のそれらのフォルダーで、サイズが完全に一致する `.gguf` を最大 20 秒間探します (ほかにマウントされているディスクは名前でのみ確認します)。見つかったファイルは **SHA-256 が一致した場合にのみ** 使用されます。その後マイナーは、そのファイルを自分のモデルフォルダーにリンク (同じディスクの場合) またはコピーするので、以降のどのバージョンもすぐに見つけられます。直接指定することもできます: `./thenewminer --model /path/to/Qwen3-8B-Q8_0-full-v2.gguf`。
+
+**Linux:** ホームフォルダーにコピーしてから、いつもどおりマイナーを起動します。同じネットワーク上の Mac や PC からコピーする場合は (Windows 10 と 11 では PowerShell で `scp` を使えます)、`user` と `<MINER_IP>` をマイナーのログイン名とアドレスに置き換えてください:
+
+```bash
+# マイナー本体のマシン上で
+cp /path/to/Qwen3-8B-Q8_0-full-v2.gguf ~/
+# または別のコンピューターから
+scp Qwen3-8B-Q8_0-full-v2.gguf user@<MINER_IP>:~/
+```
+
+**HiveOS:** リグの `/home/user/` にコピーし (HiveOS の SSH ログイン名は `user` です)、フライトシートを適用します。マイナーはそこでファイルを見つけて検査し、パッケージの隣 (`/hive/miners/custom/.thenewminer-models`) に保存するので、新しいバージョンが再びダウンロードすることはありません。HiveOS のディスクは小さいため、先に `disk-expand` を実行してください (`df -h /hive/miners` で空き容量が 12 GB 未満と表示される場合)。
+
+```bash
+scp Qwen3-8B-Q8_0-full-v2.gguf user@<RIG_IP>:/home/user/
+```
+
+**Windows:** 最初の `setup` で TheNewMiner の WSL ディストリビューションが作成された後、コマンド プロンプトからファイルをその中にコピーします (`D:\Models` はお手元のコピーがある場所に変更してください)。すでにダウンロードが始まっていた場合は、ウィンドウを閉じてこれらのコマンドを実行し、もう一度 TheNewMiner を起動してください。コピーを見つけてダウンロードを省略します。コピーには数分かかり、進行状況は表示されません。
+
+```bat
+wsl -d TheNewMiner -u root -- mkdir -p ~/thenewminer/models
+wsl -d TheNewMiner -u root -- cp /mnt/d/Models/Qwen3-8B-Q8_0-full-v2.gguf ~/thenewminer/models/
 ```
 
 ## ウォレット、プールパスワード、ワーカー名の変更
@@ -243,6 +280,8 @@ nvidia-smi    # ヘッダーに "Driver Version: ..." と表示されます。58
 
 | 日付 | カード | OS | パッケージ | ハッシュレート | A / R |
 |---|---|---|---|---|---|
+| 2026-10-23 | RTX 5090 | Linux | v0.1.46 リリースビルド | 95.41 N/s (安定マイニング時、12 分。ジョブ切り替えを含めると 91.70) | 10 / 0 (stale +1、無効 0) |
+| 2026-10-23 | RTX 4090 | Linux | v0.1.46 リリースビルド | 66.23 N/s (中央値、10 分) | 2 / 0 |
 | 2026-10-23 | RTX 4090 | Linux | v0.1.45 リリースビルド | 65.42 N/s (安定マイニング時、16 分。ジョブ切り替えを含めると 62.35) | 13 / 0 (無効 0) |
 | 2026-10-23 | RTX 5090 | Linux | v0.1.45 リリースビルド | 94.18 N/s (安定マイニング時。ジョブ切り替えを含めると 92.24) | 17 / 0 (無効 0) |
 | 2026-10-23 | RTX 4090 | Linux | v0.1.44 sealed-r4 | 65.58 N/s (中央値、16 分) | 10 / 0 |
@@ -280,12 +319,16 @@ SHA-256 が一致したパッケージに対してのみ行ってください。
 初回起動では約 8.1 GiB のモデルをダウンロードし、カード上で GPU セルフチェックを行います。Windows では WSL2 のセットアップも行う場合があります。これは一度だけです。二回目以降は、はるかに早くマイニングが始まります。
 
 **プールがウォレット / パスワードを拒否したとマイナーが表示する。**
-ウォレットアドレスとプールのパスワード (およびプールがアカウントを承認済みかどうか) を確認してから、再度起動してください:
+ウォレットアドレスとプールのパスワード (アカウントがプールのウェブサイトに存在している必要があります) を確認してから、再度起動してください:
 Linux は `./thenewminer -u <YOUR_WALLET> -p '<YOUR_POOL_PASSWORD>'`、Windows は `TheNewMiner.bat setup`。マイナーは誤った認証情報で自動的に再試行することはありません。
 
 **マイニングしていますか? ログはどこにありますか?**
 Linux: `./thenewminer --status`、`./thenewminer --logs`、またはファイル `thenewminer/.miner/thenewminer.log`。
 Windows: `TheNewMiner.bat status` と `TheNewMiner.bat logs`。
+
+## 問題の報告
+
+[GitHub Issues](https://github.com/ngasuka855/TheNewMiner/issues/new/choose) で issue を作成し、バグ報告フォームに記入してください。TheNewMiner のバージョン、システム、GPU の型番とドライバー、`./thenewminer --status` の出力、ログの最後の数行を記入します。issue は公開されます。**プールパスワードやウォレットの秘密鍵は決して投稿しないでください**。また、貼り付ける内容からはパスワード (必要であればウォレットアドレスも) を削除してください。
 
 ## セキュリティに関する注意
 

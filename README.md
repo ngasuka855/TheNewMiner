@@ -6,32 +6,50 @@ TheNewMiner is a GPU miner for **TensorCash**. It runs on NVIDIA GeForce RTX 30,
 **10 GB or more of VRAM** and mines on the pool **`tsc-wss.the-new.win`**, which is built in: you do not enter a pool
 address, and it connects directly.
 
-Current version: **v0.1.45**
+Current version: **v0.1.46** · Pool website: [tsc.the-new.win](https://tsc.the-new.win/#/home)
 
-## What's new in v0.1.45
+## Before you start: create your pool account
 
-- **A clear message when the pool rejects your wallet or password.** The miner says so in one line and stops instead
-  of retrying; `--status` shows the reason. Check the wallet and password, then start again with `-u` and `-p`.
-- **Your wallet and password are no longer visible in `ps`** or in other users' process lists.
-- **`./thenewminer --status`** shows whether it is mining, since when, the last rate and the accepted / rejected shares.
-- **HiveOS support (experimental):** a HiveOS custom-miner package and an importable flight sheet (see the HiveOS section below).
-- **Safe upgrades:** the new version refuses to start while the old one is still mining (it tells you to stop it
-  first); after `--stop` it re-installs its program files by itself and keeps your settings and the model.
-- **`--background` no longer says "started" when the miner ends at once**; it shows the reason.
-- **Docker and small shared memory:** when the in-memory folder is too small (Docker's default is 64 MiB) or does not
-  allow running programs, the miner uses `thenewminer/.miner/run/` on disk instead and says so.
-- **Pool passwords may now use any visible character** (punctuation and non-English letters too): 6–128 characters,
-  no spaces.
-- More Linux systems: the installer now checks what it needs (glibc 2.34 or newer) instead of accepting only a few
-  Ubuntu versions.
+Mining needs a pool account: your TSC payout address (wallet) and a pool password that you choose on the pool website.
+The site has an English version (use its language menu).
+
+1. Open [tsc.the-new.win](https://tsc.the-new.win/#/home) and go to **Start mining** (开始挖矿).
+2. Under **1. Bind Wallet**, enter your **TSC payout address** (`tc1...`; check it carefully: mining income sent to a
+   wrong address cannot be recovered), choose a **Pool Password** (6–128 characters) and enter it again under
+   **Confirm Password**.
+3. Click **Apply to join pool**. The page confirms that the wallet is bound; the account works at once.
+4. Use the same wallet and password in the miner: `-u <YOUR_WALLET> -p '<YOUR_POOL_PASSWORD>'` on Linux, the questions
+   of `TheNewMiner.bat` on Windows, or the flight sheet on HiveOS. About 3–5 minutes after the start, your rig appears
+   under **My Miners** on the pool website.
+
+The pool cannot recover a forgotten pool password, and the payout address cannot be changed later. The pool password is
+not your wallet's private key: never give your private key to anyone.
+
+## What's new in v0.1.46
+
+- **Fewer first-start failures on RTX 30 series cards and HiveOS.** The one-time GPU check now uses GPU code
+  precompiled for every supported card family and already runs once during the installation; the GPU compile cache is
+  kept between starts and upgrades. If the check still times out on an RTX 30 series card, the miner does that step on
+  the CPU instead and keeps mining. If the card's configuration cannot be prepared, the miner says why in one `Reason:`
+  line (exit code 78).
+- **HiveOS:** when the miner cannot prepare its configuration for the GPU on a first start (exit code 78), the rig now
+  waits and retries with growing pauses (one to ten minutes) instead of restarting every few seconds.
+- **Smoother waves:** when the pool's checkpoint changes in the middle of a wave, the next wave's work is now prepared
+  again in the background. On an RTX 5090 this removed the waits at that moment (+0.3% sustained rate, identical
+  results).
+- **Nothing left in memory after a rejected password:** `--status` and `--logs` after a stop no longer leave the
+  unpacked program files (about 1.5 GB) in memory.
+- **Already have the model?** Copy it instead of downloading it again: see the section below.
+
+The changes of v0.1.45 are in [`RELEASE-NOTES-v0.1.45.md`](RELEASE-NOTES-v0.1.45.md).
 
 ## Download
 
 | File | For | SHA-256 |
 |---|---|---|
-| [`TheNewMiner-v0.1.45-linux-x86_64-sealed.tar.xz`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.45/TheNewMiner-v0.1.45-linux-x86_64-sealed.tar.xz) | Linux x86_64 | `6281bf489fae843551114f09ead5498d3e47af33a07e4cfdfbdc0a5d6bdbafbb` |
-| [`TheNewMiner-v0.1.45-windows-wsl2-r1.zip`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.45/TheNewMiner-v0.1.45-windows-wsl2-r1.zip) | Windows 10 / 11 (runs through WSL2) | `90732441b0dc67de84809d9bf3bda4441c0bf7cd9a52fefb95d29242ad7b15e7` |
-| [`SHA256SUMS`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.45/SHA256SUMS) | checksums of all packages | |
+| [`TheNewMiner-v0.1.46-linux-x86_64-sealed.tar.xz`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.46/TheNewMiner-v0.1.46-linux-x86_64-sealed.tar.xz) | Linux x86_64 | `3585360e80993176475b6e400258888b4ddf8cb130ff97574e74e15cf1e248a8` |
+| [`TheNewMiner-v0.1.46-windows-wsl2-r1.zip`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.46/TheNewMiner-v0.1.46-windows-wsl2-r1.zip) | Windows 10 / 11 (runs through WSL2) | `dd9cb395e4012bfb81a5b9f0a1fdfd196955b781265a4a4e0d67266bd67b6a9e` |
+| [`SHA256SUMS`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.46/SHA256SUMS) | checksums of all packages | |
 
 The Windows zip is all-in-one: it already contains the Linux miner, so you only need the zip.
 
@@ -48,19 +66,20 @@ shasum -a 256 -c --ignore-missing SHA256SUMS
 
 ```bat
 :: Windows (Command Prompt): compare the output with the SHA-256 in the table above
-certutil -hashfile TheNewMiner-v0.1.45-windows-wsl2-r1.zip SHA256
+certutil -hashfile TheNewMiner-v0.1.46-windows-wsl2-r1.zip SHA256
 ```
 
 Each file must report `OK` (on Windows: the same 64 characters as in the table). If it does not match, do not use it.
 
 ## One-click install (Linux)
 
-Replace `<YOUR_WALLET>`, `<YOUR_POOL_PASSWORD>` and `<RIG_NAME>` (including the `<` `>`) at the end of this command,
-then paste it into a terminal. It downloads the Linux package and `SHA256SUMS` of this version (with `curl`, or `wget` if there is no
+Create your pool account first (see "Before you start" above). Then replace `<YOUR_WALLET>`, `<YOUR_POOL_PASSWORD>` and
+`<RIG_NAME>` (including the `<` `>`) at the end of this command with your wallet, your pool password and a name for this
+rig, and paste it into a terminal. It downloads the Linux package and `SHA256SUMS` of this version (with `curl`, or `wget` if there is no
 `curl`), checks the SHA-256, unpacks the miner into `~/thenewminer` and starts it in the background:
 
 ```bash
-mkdir -p ~/thenewminer-download && cd ~/thenewminer-download && V=v0.1.45 && P=TheNewMiner-$V-linux-x86_64-sealed.tar.xz && U=https://github.com/ngasuka855/TheNewMiner/raw/$V && rm -f "$P" SHA256SUMS && if command -v curl >/dev/null 2>&1; then curl -fL -o "$P" "$U/$P" && curl -fL -o SHA256SUMS "$U/SHA256SUMS"; else wget -O "$P" "$U/$P" && wget -O SHA256SUMS "$U/SHA256SUMS"; fi && sha256sum -c --ignore-missing SHA256SUMS && tar -xJf "$P" -C ~ && cd ~/thenewminer && ./thenewminer -u <YOUR_WALLET> -p '<YOUR_POOL_PASSWORD>' -w <RIG_NAME> --background
+mkdir -p ~/thenewminer-download && cd ~/thenewminer-download && V=v0.1.46 && P=TheNewMiner-$V-linux-x86_64-sealed.tar.xz && U=https://github.com/ngasuka855/TheNewMiner/raw/$V && rm -f "$P" SHA256SUMS && if command -v curl >/dev/null 2>&1; then curl -fL -o "$P" "$U/$P" && curl -fL -o SHA256SUMS "$U/SHA256SUMS"; else wget -O "$P" "$U/$P" && wget -O SHA256SUMS "$U/SHA256SUMS"; fi && sha256sum -c --ignore-missing SHA256SUMS && tar -xJf "$P" -C ~ && cd ~/thenewminer && ./thenewminer -u <YOUR_WALLET> -p '<YOUR_POOL_PASSWORD>' -w <RIG_NAME> --background
 ```
 
 It stops at the first step that fails: a download error or a SHA-256 mismatch never starts anything (the check guards
@@ -75,7 +94,7 @@ there as described under Linux (otherwise the model is downloaded again).
 ## Linux
 
 ```bash
-tar -xJf TheNewMiner-v0.1.45-linux-x86_64-sealed.tar.xz
+tar -xJf TheNewMiner-v0.1.46-linux-x86_64-sealed.tar.xz
 cd thenewminer
 ./thenewminer -u <YOUR_WALLET> -p '<YOUR_POOL_PASSWORD>' -w rig-01 --background
 ```
@@ -97,7 +116,7 @@ cd thenewminer
 - Settings are remembered in `thenewminer/.miner/` (the file with the password is readable only by you). The wallet
   and the password are taken off the command line at once, so they do not show in `ps` (your shell may still keep the
   command in its history).
-- If the pool rejects the wallet or the password (or has not approved the account yet), the miner says so and stops.
+- If the pool rejects the wallet or the password, the miner says so and stops.
   Check them and start again with `-u` and `-p`.
 - The first start downloads the model (about 8.1 GiB, once), installs the GPU engine for your card and runs a
   self-check on the card, then mines. Lines like `[ RATE] ... N/s` mean it is mining.
@@ -114,7 +133,7 @@ cd thenewminer
 
 ## Windows (one click)
 
-1. Unzip the whole `TheNewMiner-v0.1.45-windows-wsl2-r1.zip` (right-click › Extract All) anywhere: any folder, any
+1. Unzip the whole `TheNewMiner-v0.1.46-windows-wsl2-r1.zip` (right-click › Extract All) anywhere: any folder, any
    drive; paths with spaces or Chinese characters are fine. Do not run it from inside the zip view.
 2. Double-click **`TheNewMiner.bat`**.
    - **First time:** it checks Windows, the driver and the disk, turns on WSL2 if needed (one administrator prompt;
@@ -150,11 +169,12 @@ Daily commands (open a Command Prompt in the unzipped folder):
 
 ## HiveOS (experimental)
 
-HiveOS support is new in v0.1.45 and **experimental**. It uses the HiveOS custom-miner package below.
+HiveOS support is **experimental** (since v0.1.45, which ran on a real HiveOS rig; the v0.1.46 first-start changes have
+not run on one yet). It uses the HiveOS custom-miner package below.
 
 | File | SHA-256 |
 |---|---|
-| [`thenewminer-0.1.45.tar.gz`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.45/thenewminer-0.1.45.tar.gz) | `90576efd388ceeca4e456b62b568f267465320913a07c9f9736f42363b1701dc` |
+| [`thenewminer-0.1.46.tar.gz`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.46/thenewminer-0.1.46.tar.gz) | `2284c258176e6b372bf56947a343116688e773dee2d479a7f5f125ad9f0a1915` |
 
 Quick setup (import the flight sheet):
 
@@ -172,7 +192,7 @@ Miner: "Custom", click **Setup Miner Config** and fill in:
 | Field | Value |
 |---|---|
 | Miner name | `thenewminer` (filled in from the installation URL) |
-| Installation URL | `https://github.com/ngasuka855/TheNewMiner/raw/v0.1.45/thenewminer-0.1.45.tar.gz` |
+| Installation URL | `https://github.com/ngasuka855/TheNewMiner/raw/v0.1.46/thenewminer-0.1.46.tar.gz` |
 | Hash algorithm | leave empty |
 | Wallet and worker template | `%WAL%.%WORKER_NAME%` |
 | Pool URL | `tsc-wss.the-new.win` (ignored: the pool is built in) |
@@ -188,26 +208,67 @@ Miner: "Custom", click **Setup Miner Config** and fill in:
   starts it again: fix the flight sheet and apply it (that restarts the miner at once).
 - Logs: the miner screen in HiveOS (`miner` in the rig's shell) or `/var/log/miner/custom/custom.log`.
 - **Upgrade:** change both version numbers in the installation URL (for example
-  `.../raw/v0.1.46/thenewminer-0.1.46.tar.gz`) and apply the flight sheet. HiveOS installs only when the file name in
+  `.../raw/vX.Y.Z/thenewminer-X.Y.Z.tar.gz`) and apply the flight sheet. HiveOS installs only when the file name in
   the URL changes.
-- **The first start takes a while:** after the model download, on RTX 30 series cards a one-time GPU check may time
-  out on a slow rig disk,
-  and HiveOS then restarts the miner by itself, two or three times (about 8 minutes). Leave it alone; it then mines.
-- **Already have the model?** Copy `Qwen3-8B-Q8_0-full-v2.gguf` (about 8.1 GiB, exactly this file name) to `/home/user/` on the rig before the
-  first start: the miner finds it, checks its SHA-256 and uses it instead of downloading it again.
+- **The first start** downloads the model and installs the GPU engine, which takes a few minutes. If the miner then
+  cannot prepare its configuration for the GPU, the log says why in a `Reason:` line and HiveOS retries with growing
+  pauses (one to ten minutes).
+- **Already have the model?** Copy it to `/home/user/` on the rig before the first start (see the next section).
 
-**If the rig cannot reach GitHub:** download `thenewminer-0.1.45.tar.gz` on a PC (check its SHA-256 in the table
+**If the rig cannot reach GitHub:** download `thenewminer-0.1.46.tar.gz` on a PC (check its SHA-256 in the table
 above), copy it to the rig and unpack it where HiveOS keeps custom miners. Then apply the flight sheet as usual:
-HiveOS reports "Already installed" and does not download it. Keep the file name exactly `thenewminer-0.1.45.tar.gz`
+HiveOS reports "Already installed" and does not download it. Keep the file name exactly `thenewminer-0.1.46.tar.gz`
 (a browser may add " (1)") and keep the installation URL in the flight sheet unchanged: HiveOS compares that name.
 
 ```bash
 # on the PC
-scp thenewminer-0.1.45.tar.gz user@<RIG_IP>:/tmp/
+scp thenewminer-0.1.46.tar.gz user@<RIG_IP>:/tmp/
 # on the rig, as root (Hive Shell, or SSH and then sudo -i)
 mkdir -p /hive/miners/custom/downloads
-mv /tmp/thenewminer-0.1.45.tar.gz /hive/miners/custom/downloads/
-cd /hive/miners/custom && tar -xzf downloads/thenewminer-0.1.45.tar.gz
+mv /tmp/thenewminer-0.1.46.tar.gz /hive/miners/custom/downloads/
+cd /hive/miners/custom && tar -xzf downloads/thenewminer-0.1.46.tar.gz
+```
+
+## Already have the model? Copy it
+
+The miner needs one 8.1 GiB model file: `Qwen3-8B-Q8_0-full-v2.gguf` (`8709518112` bytes, SHA-256
+`408b955510e196121c1c375201744783b5c9a43c7956d73fc78df54c66e883d6`). If it is already on this machine, or on another
+computer on your network, copy it instead of downloading it again.
+
+Before it downloads anything, the miner looks for the file by its exact name and size: in its own model folder, in
+earlier TheNewMiner folders, in your home folder (and one or two folders below it, or a `models` folder there), in
+the home folders under `/home`, `/data`, `/mnt/*`, `/media/*`, `/opt`, `/srv`, `/workspace`, `/var/lib`, and in the Hugging Face /
+ModelScope caches. If nothing is found there, it spends up to 20 seconds searching those folders on the same disk
+(other mounted disks are checked by name only) for any `.gguf` of exactly that size. A file it finds is used **only if its SHA-256 matches**; it then links it (same disk) or copies it into its own
+model folder, so every later version finds it at once. You can also point at it directly:
+`./thenewminer --model /path/to/Qwen3-8B-Q8_0-full-v2.gguf`.
+
+**Linux:** copy it into your home folder, then start the miner as usual. From a Mac or a PC on the same network
+(Windows 10 and 11 have `scp` in PowerShell), replace `user` and `<MINER_IP>` with your miner's login and address:
+
+```bash
+# on the miner itself
+cp /path/to/Qwen3-8B-Q8_0-full-v2.gguf ~/
+# or from another computer
+scp Qwen3-8B-Q8_0-full-v2.gguf user@<MINER_IP>:~/
+```
+
+**HiveOS:** copy it to the rig's `/home/user/` (HiveOS's SSH login is `user`), then apply the flight sheet. The miner
+finds it there, checks it and keeps it beside the package (`/hive/miners/custom/.thenewminer-models`), so a new version
+never downloads it again. HiveOS's disk is small: run `disk-expand` first if `df -h /hive/miners` shows less than 12 GB free.
+
+```bash
+scp Qwen3-8B-Q8_0-full-v2.gguf user@<RIG_IP>:/home/user/
+```
+
+**Windows:** after the first `setup` has created TheNewMiner's WSL distribution, copy the file into it from a Command
+Prompt (change `D:\Models` to where your copy is). If the download had already started, close the window, run these
+commands, then start TheNewMiner again: it finds the copy and skips the download. The copy takes a few minutes and
+shows no progress.
+
+```bat
+wsl -d TheNewMiner -u root -- mkdir -p ~/thenewminer/models
+wsl -d TheNewMiner -u root -- cp /mnt/d/Models/Qwen3-8B-Q8_0-full-v2.gguf ~/thenewminer/models/
 ```
 
 ## Change your wallet, pool password or worker name
@@ -313,6 +374,8 @@ the median rate between job changes.
 
 | Date | Card | OS | Package | Hashrate | A / R |
 |---|---|---|---|---|---|
+| 2026-10-23 | RTX 5090 | Linux | v0.1.46 release build | 95.41 N/s (steady mining, 12 min; 91.70 including job changes) | 10 / 0 (+1 stale; 0 invalid) |
+| 2026-10-23 | RTX 4090 | Linux | v0.1.46 release build | 66.23 N/s (median, 10 min) | 2 / 0 |
 | 2026-10-23 | RTX 4090 | Linux | v0.1.45 release build | 65.42 N/s (steady mining, 16 min; 62.35 including job changes) | 13 / 0 (0 invalid) |
 | 2026-10-23 | RTX 5090 | Linux | v0.1.45 release build | 94.18 N/s (steady mining; 92.24 including job changes) | 17 / 0 (0 invalid) |
 | 2026-10-23 | RTX 4090 | Linux | v0.1.44 sealed-r4 | 65.58 N/s (median, 16 min) | 10 / 0 |
@@ -353,13 +416,20 @@ The first start downloads the ~8.1 GiB model and runs a GPU self-check on your c
 WSL2. This happens once. Later starts begin mining much sooner.
 
 **The miner says the pool rejected the wallet / password.**
-Check the wallet address and the pool password (and that the pool has approved your account), then start again:
+Check the wallet address and the pool password (the account must exist on the pool website), then start again:
 Linux `./thenewminer -u <YOUR_WALLET> -p '<YOUR_POOL_PASSWORD>'`, Windows `TheNewMiner.bat setup`. The miner does not
 retry wrong credentials by itself.
 
 **Is it mining? Where are the logs?**
 Linux: `./thenewminer --status`, `./thenewminer --logs`, or the file `thenewminer/.miner/thenewminer.log`.
 Windows: `TheNewMiner.bat status` and `TheNewMiner.bat logs`.
+
+## Report a problem
+
+Open an issue on [GitHub Issues](https://github.com/ngasuka855/TheNewMiner/issues/new/choose) and fill in the bug report
+form: the TheNewMiner version, your system, GPU model(s) and driver, the `./thenewminer --status` output and the last log
+lines. Issues are public: **never post your pool password or your wallet's private key**, and remove the password (and,
+if you prefer, your wallet address) from anything you paste.
 
 ## Security note
 

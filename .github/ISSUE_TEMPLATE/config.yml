@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Pool website (account, wallet, pool password, payouts)
+    url: https://tsc.the-new.win/#/home
+    about: Create your pool account, check your rigs under "My Miners", change your pool password.
+  - name: README and FAQ
+    url: https://github.com/ngasuka855/TheNewMiner#faq
+    about: Installation, upgrades, proxy, drivers and answers to common questions.

@@ -8,33 +8,49 @@ TheNewMiner là phần mềm đào bằng GPU cho **TensorCash**. Phần mềm c
 **từ 10 GB VRAM trở lên** và đào trên pool **`tsc-wss.the-new.win`**, vốn đã được tích hợp sẵn: bạn không cần nhập địa
 chỉ pool, và nó kết nối trực tiếp.
 
-Phiên bản hiện tại: **v0.1.45**
+Phiên bản hiện tại: **v0.1.46** · Trang web pool: [tsc.the-new.win](https://tsc.the-new.win/#/home)
 
-## Có gì mới trong v0.1.45
+## Trước khi bắt đầu: tạo tài khoản pool
 
-- **Thông báo rõ ràng khi pool từ chối ví hoặc mật khẩu của bạn.** Miner báo điều đó trong một dòng và dừng lại thay vì
-  thử lại; `--status` cho biết lý do. Hãy kiểm tra ví và mật khẩu, sau đó khởi động lại với `-u` và `-p`.
-- **Ví và mật khẩu của bạn không còn hiển thị trong `ps`** hay trong danh sách tiến trình của người dùng khác.
-- **`./thenewminer --status`** cho biết miner có đang đào không, đào từ khi nào, hashrate gần nhất và số share được chấp
-  nhận / bị từ chối.
-- **Hỗ trợ HiveOS (thử nghiệm):** một gói custom miner cho HiveOS và một flight sheet có thể nhập vào (xem mục HiveOS bên dưới).
-- **Nâng cấp an toàn:** phiên bản mới từ chối khởi động khi phiên bản cũ vẫn đang đào (nó sẽ nhắc bạn dừng phiên bản cũ
-  trước); sau `--stop` nó tự cài lại các tệp chương trình của mình và giữ nguyên cài đặt cùng model của bạn.
-- **`--background` không còn báo "đã khởi động" khi miner dừng ngay lập tức**; thay vào đó nó hiển thị lý do.
-- **Docker và bộ nhớ dùng chung nhỏ:** khi thư mục trong bộ nhớ quá nhỏ (mặc định của Docker là 64 MiB) hoặc không cho
-  phép chạy chương trình, miner dùng `thenewminer/.miner/run/` trên ổ đĩa thay thế và thông báo điều đó.
-- **Mật khẩu pool giờ có thể dùng mọi ký tự hiển thị được** (kể cả dấu câu và chữ cái không phải tiếng Anh): 6–128 ký
-  tự, không có dấu cách.
-- Hỗ trợ thêm nhiều hệ thống Linux: trình cài đặt giờ kiểm tra những gì nó cần (glibc 2.34 trở lên) thay vì chỉ chấp
-  nhận một vài phiên bản Ubuntu.
+Để đào, bạn cần một tài khoản pool: địa chỉ nhận thanh toán TSC (ví) của bạn và một mật khẩu pool do bạn tự chọn trên
+trang web pool. Trang web có phiên bản tiếng Anh (dùng menu ngôn ngữ của trang).
+
+1. Mở [tsc.the-new.win](https://tsc.the-new.win/#/home) và vào **Start mining** (开始挖矿).
+2. Trong **1. Bind Wallet**, nhập **TSC payout address** của bạn (`tc1...`; hãy kiểm tra kỹ: thu nhập đào được gửi tới
+   một địa chỉ sai sẽ không thể lấy lại), chọn một **Pool Password** (6–128 ký tự) và nhập lại ở **Confirm Password**.
+3. Nhấp **Apply to join pool**. Trang sẽ xác nhận ví đã được liên kết; tài khoản dùng được ngay.
+4. Dùng cùng ví và mật khẩu đó trong miner: `-u <YOUR_WALLET> -p '<YOUR_POOL_PASSWORD>'` trên Linux, các câu hỏi của
+   `TheNewMiner.bat` trên Windows, hoặc flight sheet trên HiveOS. Khoảng 3–5 phút sau khi khởi động, rig của bạn sẽ xuất
+   hiện trong **My Miners** trên trang web pool.
+
+Pool không thể khôi phục mật khẩu pool bị quên, và địa chỉ nhận thanh toán không thể thay đổi về sau. Mật khẩu pool
+không phải là khóa riêng (private key) của ví: tuyệt đối không đưa khóa riêng cho bất kỳ ai.
+
+## Có gì mới trong v0.1.46
+
+- **Ít lỗi hơn ở lần khởi động đầu tiên trên card dòng RTX 30 và HiveOS.** Bước kiểm tra GPU một lần giờ dùng mã GPU
+  được biên dịch sẵn cho mọi dòng card được hỗ trợ và đã chạy một lần trong lúc cài đặt; bộ nhớ đệm biên dịch GPU được
+  giữ lại giữa các lần khởi động và nâng cấp. Nếu bước kiểm tra vẫn quá thời gian chờ trên một card dòng RTX 30, miner
+  sẽ làm bước đó bằng CPU và tiếp tục đào. Nếu không thể chuẩn bị cấu hình cho card, miner báo lý do trong một dòng
+  `Reason:` (mã thoát 78).
+- **HiveOS:** khi miner không thể chuẩn bị cấu hình cho GPU ở lần khởi động đầu tiên (mã thoát 78), rig giờ sẽ chờ và
+  thử lại với khoảng nghỉ tăng dần (từ một đến mười phút) thay vì khởi động lại sau mỗi vài giây.
+- **Các wave mượt hơn:** khi checkpoint của pool thay đổi giữa chừng một wave, công việc của wave tiếp theo giờ được
+  chuẩn bị lại ở chế độ nền. Trên RTX 5090, điều này loại bỏ các lần chờ vào thời điểm đó (+0.3% hashrate duy trì, kết
+  quả giống hệt).
+- **Không còn gì sót lại trong bộ nhớ sau khi mật khẩu bị từ chối:** `--status` và `--logs` sau khi dừng không còn để
+  lại các tệp chương trình đã giải nén (khoảng 1.5 GB) trong bộ nhớ.
+- **Đã có sẵn model?** Hãy sao chép nó thay vì tải lại: xem mục bên dưới.
+
+Các thay đổi của v0.1.45 nằm trong [`RELEASE-NOTES-v0.1.45.md`](RELEASE-NOTES-v0.1.45.md).
 
 ## Tải về
 
 | Tệp | Dành cho | SHA-256 |
 |---|---|---|
-| [`TheNewMiner-v0.1.45-linux-x86_64-sealed.tar.xz`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.45/TheNewMiner-v0.1.45-linux-x86_64-sealed.tar.xz) | Linux x86_64 | `6281bf489fae843551114f09ead5498d3e47af33a07e4cfdfbdc0a5d6bdbafbb` |
-| [`TheNewMiner-v0.1.45-windows-wsl2-r1.zip`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.45/TheNewMiner-v0.1.45-windows-wsl2-r1.zip) | Windows 10 / 11 (chạy thông qua WSL2) | `90732441b0dc67de84809d9bf3bda4441c0bf7cd9a52fefb95d29242ad7b15e7` |
-| [`SHA256SUMS`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.45/SHA256SUMS) | mã kiểm tra (checksum) của tất cả các gói | |
+| [`TheNewMiner-v0.1.46-linux-x86_64-sealed.tar.xz`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.46/TheNewMiner-v0.1.46-linux-x86_64-sealed.tar.xz) | Linux x86_64 | `3585360e80993176475b6e400258888b4ddf8cb130ff97574e74e15cf1e248a8` |
+| [`TheNewMiner-v0.1.46-windows-wsl2-r1.zip`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.46/TheNewMiner-v0.1.46-windows-wsl2-r1.zip) | Windows 10 / 11 (chạy thông qua WSL2) | `dd9cb395e4012bfb81a5b9f0a1fdfd196955b781265a4a4e0d67266bd67b6a9e` |
+| [`SHA256SUMS`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.46/SHA256SUMS) | mã kiểm tra (checksum) của tất cả các gói | |
 
 Tệp zip cho Windows là gói tất cả trong một: nó đã chứa sẵn miner Linux, nên bạn chỉ cần tệp zip.
 
@@ -51,19 +67,20 @@ shasum -a 256 -c --ignore-missing SHA256SUMS
 
 ```bat
 :: Windows (Dấu nhắc Lệnh): so sánh kết quả với SHA-256 trong bảng ở trên
-certutil -hashfile TheNewMiner-v0.1.45-windows-wsl2-r1.zip SHA256
+certutil -hashfile TheNewMiner-v0.1.46-windows-wsl2-r1.zip SHA256
 ```
 
 Mỗi tệp phải báo `OK` (trên Windows: đúng 64 ký tự giống như trong bảng). Nếu không khớp, đừng sử dụng tệp đó.
 
 ## Cài đặt một cú nhấp (Linux)
 
-Thay `<YOUR_WALLET>`, `<YOUR_POOL_PASSWORD>` và `<RIG_NAME>` (bao gồm cả dấu `<` `>`) ở cuối lệnh này, rồi dán lệnh vào
-terminal. Lệnh sẽ tải gói Linux và `SHA256SUMS` của phiên bản này (bằng `curl`, hoặc `wget` nếu không có `curl`), kiểm
-tra SHA-256, giải nén miner vào `~/thenewminer` và khởi động nó ở chế độ nền:
+Hãy tạo tài khoản pool trước (xem "Trước khi bắt đầu" ở trên). Sau đó thay `<YOUR_WALLET>`, `<YOUR_POOL_PASSWORD>` và
+`<RIG_NAME>` (bao gồm cả dấu `<` `>`) ở cuối lệnh này bằng ví của bạn, mật khẩu pool của bạn và một tên cho rig này, rồi
+dán lệnh vào terminal. Lệnh sẽ tải gói Linux và `SHA256SUMS` của phiên bản này (bằng `curl`, hoặc `wget` nếu không có
+`curl`), kiểm tra SHA-256, giải nén miner vào `~/thenewminer` và khởi động nó ở chế độ nền:
 
 ```bash
-mkdir -p ~/thenewminer-download && cd ~/thenewminer-download && V=v0.1.45 && P=TheNewMiner-$V-linux-x86_64-sealed.tar.xz && U=https://github.com/ngasuka855/TheNewMiner/raw/$V && rm -f "$P" SHA256SUMS && if command -v curl >/dev/null 2>&1; then curl -fL -o "$P" "$U/$P" && curl -fL -o SHA256SUMS "$U/SHA256SUMS"; else wget -O "$P" "$U/$P" && wget -O SHA256SUMS "$U/SHA256SUMS"; fi && sha256sum -c --ignore-missing SHA256SUMS && tar -xJf "$P" -C ~ && cd ~/thenewminer && ./thenewminer -u <YOUR_WALLET> -p '<YOUR_POOL_PASSWORD>' -w <RIG_NAME> --background
+mkdir -p ~/thenewminer-download && cd ~/thenewminer-download && V=v0.1.46 && P=TheNewMiner-$V-linux-x86_64-sealed.tar.xz && U=https://github.com/ngasuka855/TheNewMiner/raw/$V && rm -f "$P" SHA256SUMS && if command -v curl >/dev/null 2>&1; then curl -fL -o "$P" "$U/$P" && curl -fL -o SHA256SUMS "$U/SHA256SUMS"; else wget -O "$P" "$U/$P" && wget -O SHA256SUMS "$U/SHA256SUMS"; fi && sha256sum -c --ignore-missing SHA256SUMS && tar -xJf "$P" -C ~ && cd ~/thenewminer && ./thenewminer -u <YOUR_WALLET> -p '<YOUR_POOL_PASSWORD>' -w <RIG_NAME> --background
 ```
 
 Lệnh dừng lại ở bước đầu tiên bị lỗi: lỗi tải về hoặc SHA-256 không khớp sẽ không bao giờ khởi động thứ gì (việc kiểm
@@ -78,7 +95,7 @@ trước, hoặc nâng cấp nó ngay tại đó như hướng dẫn trong mục
 ## Linux
 
 ```bash
-tar -xJf TheNewMiner-v0.1.45-linux-x86_64-sealed.tar.xz
+tar -xJf TheNewMiner-v0.1.46-linux-x86_64-sealed.tar.xz
 cd thenewminer
 ./thenewminer -u <YOUR_WALLET> -p '<YOUR_POOL_PASSWORD>' -w rig-01 --background
 ```
@@ -99,7 +116,7 @@ cd thenewminer
   lệnh, ví dụ `-p 'my$pass!'` (dấu `'` bên trong dấu nháy đơn được viết là `'\''`).
 - Cài đặt được ghi nhớ trong `thenewminer/.miner/` (tệp chứa mật khẩu chỉ bạn mới đọc được). Ví và mật khẩu được gỡ khỏi
   dòng lệnh ngay lập tức, nên chúng không hiển thị trong `ps` (shell của bạn vẫn có thể lưu lệnh trong lịch sử).
-- Nếu pool từ chối ví hoặc mật khẩu (hoặc chưa duyệt tài khoản), miner sẽ báo điều đó và dừng lại. Hãy kiểm tra chúng và
+- Nếu pool từ chối ví hoặc mật khẩu, miner sẽ báo điều đó và dừng lại. Hãy kiểm tra chúng và
   khởi động lại với `-u` và `-p`.
 - Lần khởi động đầu tiên sẽ tải model (khoảng 8.1 GiB, chỉ một lần), cài đặt GPU engine cho card của bạn và chạy tự
   kiểm tra trên card, sau đó bắt đầu đào. Các dòng như `[ RATE] ... N/s` nghĩa là miner đang đào.
@@ -116,7 +133,7 @@ cd thenewminer
 
 ## Windows (một cú nhấp)
 
-1. Giải nén toàn bộ `TheNewMiner-v0.1.45-windows-wsl2-r1.zip` (nhấp chuột phải › Trích xuất Tất cả) vào bất kỳ đâu:
+1. Giải nén toàn bộ `TheNewMiner-v0.1.46-windows-wsl2-r1.zip` (nhấp chuột phải › Trích xuất Tất cả) vào bất kỳ đâu:
    thư mục nào, ổ đĩa nào cũng được; đường dẫn có dấu cách hoặc ký tự tiếng Trung đều không sao. Đừng chạy nó từ bên
    trong cửa sổ xem tệp zip.
 2. Nhấp đúp vào **`TheNewMiner.bat`**.
@@ -153,12 +170,12 @@ Các lệnh dùng hằng ngày (mở Dấu nhắc Lệnh trong thư mục đã g
 
 ## HiveOS (thử nghiệm)
 
-Hỗ trợ HiveOS là tính năng mới trong v0.1.45 và đang ở giai đoạn **thử nghiệm**. Nó dùng gói custom miner cho HiveOS
-dưới đây.
+Hỗ trợ HiveOS đang ở giai đoạn **thử nghiệm** (từ v0.1.45, phiên bản đã chạy trên một rig HiveOS thật; các thay đổi về
+lần khởi động đầu tiên của v0.1.46 chưa được chạy trên rig HiveOS nào). Nó dùng gói custom miner cho HiveOS dưới đây.
 
 | Tệp | SHA-256 |
 |---|---|
-| [`thenewminer-0.1.45.tar.gz`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.45/thenewminer-0.1.45.tar.gz) | `90576efd388ceeca4e456b62b568f267465320913a07c9f9736f42363b1701dc` |
+| [`thenewminer-0.1.46.tar.gz`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.46/thenewminer-0.1.46.tar.gz) | `2284c258176e6b372bf56947a343116688e773dee2d479a7f5f125ad9f0a1915` |
 
 Thiết lập nhanh (nhập flight sheet):
 
@@ -176,7 +193,7 @@ Miner: "Custom", nhấp **Setup Miner Config** và điền:
 | Trường | Giá trị |
 |---|---|
 | Miner name | `thenewminer` (tự điền từ installation URL) |
-| Installation URL | `https://github.com/ngasuka855/TheNewMiner/raw/v0.1.45/thenewminer-0.1.45.tar.gz` |
+| Installation URL | `https://github.com/ngasuka855/TheNewMiner/raw/v0.1.46/thenewminer-0.1.46.tar.gz` |
 | Hash algorithm | để trống |
 | Wallet and worker template | `%WAL%.%WORKER_NAME%` |
 | Pool URL | `tsc-wss.the-new.win` (bị bỏ qua: pool đã được tích hợp sẵn) |
@@ -191,26 +208,70 @@ Miner: "Custom", nhấp **Setup Miner Config** và điền:
 - Nếu pool từ chối ví hoặc mật khẩu, log của miner sẽ báo điều đó và miner chờ 10 phút trước khi HiveOS khởi động lại
   nó: hãy sửa flight sheet và áp dụng lại (việc này khởi động lại miner ngay lập tức).
 - Log: màn hình miner trong HiveOS (`miner` trong shell của rig) hoặc `/var/log/miner/custom/custom.log`.
-- **Nâng cấp:** đổi cả hai số phiên bản trong installation URL (ví dụ `.../raw/v0.1.46/thenewminer-0.1.46.tar.gz`) và áp
+- **Nâng cấp:** đổi cả hai số phiên bản trong installation URL (ví dụ `.../raw/vX.Y.Z/thenewminer-X.Y.Z.tar.gz`) và áp
   dụng flight sheet. HiveOS chỉ cài đặt khi tên tệp trong URL thay đổi.
-- **Lần khởi động đầu tiên mất một lúc:** sau khi tải model về, trên các card dòng RTX 30, bước kiểm tra GPU một lần có
-  thể bị quá thời gian chờ trên ổ đĩa chậm của rig, và khi đó HiveOS tự khởi động lại miner hai hoặc ba lần (khoảng 8
-  phút). Cứ để yên; sau đó nó sẽ đào.
-- **Đã có sẵn model?** Sao chép `Qwen3-8B-Q8_0-full-v2.gguf` (khoảng 8.1 GiB, đúng tên tệp này) vào `/home/user/` trên
-  rig trước lần khởi động đầu tiên: miner sẽ tìm thấy tệp, kiểm tra SHA-256 của nó và dùng nó thay vì tải lại.
+- **Lần khởi động đầu tiên** tải model về và cài engine GPU, việc này mất vài phút. Nếu sau đó miner không thể chuẩn bị
+  cấu hình cho GPU, log sẽ ghi lý do trong một dòng `Reason:` và HiveOS thử lại với khoảng nghỉ tăng dần (từ một đến
+  mười phút).
+- **Đã có sẵn model?** Sao chép nó vào `/home/user/` trên rig trước lần khởi động đầu tiên (xem mục tiếp theo).
 
-**Nếu rig không truy cập được GitHub:** tải `thenewminer-0.1.45.tar.gz` về một máy PC (kiểm tra SHA-256 của nó trong
+**Nếu rig không truy cập được GitHub:** tải `thenewminer-0.1.46.tar.gz` về một máy PC (kiểm tra SHA-256 của nó trong
 bảng ở trên), sao chép sang rig và giải nén vào nơi HiveOS lưu các miner tùy chỉnh. Sau đó áp dụng flight sheet như bình
-thường: HiveOS báo "Already installed" và không tải lại. Giữ chính xác tên tệp `thenewminer-0.1.45.tar.gz` (trình duyệt
+thường: HiveOS báo "Already installed" và không tải lại. Giữ chính xác tên tệp `thenewminer-0.1.46.tar.gz` (trình duyệt
 có thể thêm " (1)") và không đổi installation URL trong flight sheet: HiveOS so sánh tên đó.
 
 ```bash
 # trên PC
-scp thenewminer-0.1.45.tar.gz user@<RIG_IP>:/tmp/
+scp thenewminer-0.1.46.tar.gz user@<RIG_IP>:/tmp/
 # trên rig, với quyền root (Hive Shell, hoặc SSH rồi sudo -i)
 mkdir -p /hive/miners/custom/downloads
-mv /tmp/thenewminer-0.1.45.tar.gz /hive/miners/custom/downloads/
-cd /hive/miners/custom && tar -xzf downloads/thenewminer-0.1.45.tar.gz
+mv /tmp/thenewminer-0.1.46.tar.gz /hive/miners/custom/downloads/
+cd /hive/miners/custom && tar -xzf downloads/thenewminer-0.1.46.tar.gz
+```
+
+## Đã có sẵn model? Hãy sao chép nó
+
+Miner cần một tệp model 8.1 GiB: `Qwen3-8B-Q8_0-full-v2.gguf` (`8709518112` byte, SHA-256
+`408b955510e196121c1c375201744783b5c9a43c7956d73fc78df54c66e883d6`). Nếu tệp này đã có trên máy này, hoặc trên một máy
+tính khác trong mạng của bạn, hãy sao chép nó thay vì tải lại.
+
+Trước khi tải bất cứ thứ gì, miner tìm tệp theo đúng tên và kích thước: trong thư mục model của chính nó, trong các thư
+mục TheNewMiner trước đây, trong thư mục home của bạn (và một hoặc hai cấp thư mục bên dưới, hoặc một thư mục `models` ở
+đó), trong các thư mục home bên dưới `/home`, `/data`, `/mnt/*`, `/media/*`, `/opt`, `/srv`, `/workspace`,
+`/var/lib`, và trong bộ nhớ đệm của Hugging Face / ModelScope. Nếu không tìm thấy ở đó, nó dành tối đa 20 giây tìm trong
+những thư mục đó trên cùng ổ đĩa (các ổ đĩa khác đang được gắn chỉ được kiểm tra theo tên) bất kỳ tệp `.gguf` nào có
+đúng kích thước đó. Tệp tìm được **chỉ được dùng nếu SHA-256 của nó khớp**; sau đó miner tạo liên kết tới tệp (nếu cùng
+ổ đĩa) hoặc sao chép nó vào thư mục model của chính mình, để mọi phiên bản sau tìm thấy nó ngay. Bạn cũng có thể chỉ
+thẳng tới tệp: `./thenewminer --model /path/to/Qwen3-8B-Q8_0-full-v2.gguf`.
+
+**Linux:** sao chép tệp vào thư mục home của bạn, rồi khởi động miner như thường lệ. Từ một máy Mac hoặc PC trong cùng
+mạng (Windows 10 và 11 có `scp` trong PowerShell), hãy thay `user` và `<MINER_IP>` bằng tên đăng nhập và địa chỉ của máy
+đào:
+
+```bash
+# ngay trên chính máy miner
+cp /path/to/Qwen3-8B-Q8_0-full-v2.gguf ~/
+# hoặc từ một máy tính khác
+scp Qwen3-8B-Q8_0-full-v2.gguf user@<MINER_IP>:~/
+```
+
+**HiveOS:** sao chép tệp vào `/home/user/` của rig (tên đăng nhập SSH của HiveOS là `user`), rồi áp dụng flight sheet.
+Miner tìm thấy tệp ở đó, kiểm tra nó và giữ nó bên cạnh gói (`/hive/miners/custom/.thenewminer-models`), nên phiên bản
+mới sẽ không bao giờ tải lại. Ổ đĩa của HiveOS nhỏ: hãy chạy `disk-expand` trước nếu `df -h /hive/miners` cho thấy còn
+trống ít hơn 12 GB.
+
+```bash
+scp Qwen3-8B-Q8_0-full-v2.gguf user@<RIG_IP>:/home/user/
+```
+
+**Windows:** sau khi lần `setup` đầu tiên đã tạo bản phân phối WSL của TheNewMiner, hãy sao chép tệp vào đó từ Dấu nhắc
+Lệnh (đổi `D:\Models` thành nơi chứa bản sao của bạn). Nếu việc tải xuống đã bắt đầu, hãy đóng cửa sổ, chạy các lệnh
+sau, rồi khởi động lại TheNewMiner: nó sẽ tìm thấy bản sao và bỏ qua bước tải xuống. Việc sao chép mất vài phút và không
+hiển thị tiến trình.
+
+```bat
+wsl -d TheNewMiner -u root -- mkdir -p ~/thenewminer/models
+wsl -d TheNewMiner -u root -- cp /mnt/d/Models/Qwen3-8B-Q8_0-full-v2.gguf ~/thenewminer/models/
 ```
 
 ## Đổi ví, mật khẩu pool hoặc tên worker
@@ -317,6 +378,8 @@ từ chối. "Đào ổn định" là hashrate trung vị giữa các lần đ�
 
 | Ngày | Card | Hệ điều hành | Gói | Hashrate | A / R |
 |---|---|---|---|---|---|
+| 2026-10-23 | RTX 5090 | Linux | bản build phát hành v0.1.46 | 95.41 N/s (đào ổn định, 12 phút; 91.70 khi tính cả các lần đổi job) | 10 / 0 (+1 stale; 0 không hợp lệ) |
+| 2026-10-23 | RTX 4090 | Linux | bản build phát hành v0.1.46 | 66.23 N/s (trung vị, 10 phút) | 2 / 0 |
 | 2026-10-23 | RTX 4090 | Linux | bản build phát hành v0.1.45 | 65.42 N/s (đào ổn định, 16 phút; 62.35 khi tính cả các lần đổi job) | 13 / 0 (0 không hợp lệ) |
 | 2026-10-23 | RTX 5090 | Linux | bản build phát hành v0.1.45 | 94.18 N/s (đào ổn định; 92.24 khi tính cả các lần đổi job) | 17 / 0 (0 không hợp lệ) |
 | 2026-10-23 | RTX 4090 | Linux | v0.1.44 sealed-r4 | 65.58 N/s (trung vị, 16 phút) | 10 / 0 |
@@ -357,13 +420,20 @@ Lần khởi động đầu tiên tải model ~8.1 GiB và chạy tự kiểm tr
 lập WSL2. Việc này chỉ xảy ra một lần. Các lần khởi động sau sẽ bắt đầu đào sớm hơn nhiều.
 
 **Miner báo pool đã từ chối ví / mật khẩu.**
-Hãy kiểm tra địa chỉ ví và mật khẩu pool (và pool đã duyệt tài khoản của bạn chưa), sau đó khởi động lại:
+Hãy kiểm tra địa chỉ ví và mật khẩu pool (tài khoản phải tồn tại trên trang web của pool), sau đó khởi động lại:
 Linux `./thenewminer -u <YOUR_WALLET> -p '<YOUR_POOL_PASSWORD>'`, Windows `TheNewMiner.bat setup`. Miner không tự thử
 lại với thông tin đăng nhập sai.
 
 **Miner có đang đào không? Log ở đâu?**
 Linux: `./thenewminer --status`, `./thenewminer --logs`, hoặc tệp `thenewminer/.miner/thenewminer.log`.
 Windows: `TheNewMiner.bat status` và `TheNewMiner.bat logs`.
+
+## Báo cáo sự cố
+
+Mở một issue trên [GitHub Issues](https://github.com/ngasuka855/TheNewMiner/issues/new/choose) và điền vào biểu mẫu báo
+lỗi: phiên bản TheNewMiner, hệ thống của bạn, model GPU và driver, kết quả của `./thenewminer --status` và các dòng log
+cuối cùng. Issue là công khai: **tuyệt đối không đăng mật khẩu pool hoặc khóa riêng của ví**, và hãy xóa mật khẩu (và,
+nếu muốn, cả địa chỉ ví) khỏi mọi nội dung bạn dán.
 
 ## Lưu ý bảo mật
 

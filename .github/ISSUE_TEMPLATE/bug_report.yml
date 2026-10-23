@@ -1,0 +1,95 @@
+name: Bug report
+description: TheNewMiner does not install, start or mine as expected
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for the report. Issues are public: **never post your pool password or your wallet's private key**.
+        Remove the password (and, if you prefer, your wallet address) from anything you paste below.
+  - type: input
+    id: version
+    attributes:
+      label: TheNewMiner version
+      description: "The package you run, e.g. the file name you downloaded, or the first line of `./thenewminer --status`."
+      placeholder: "v0.1.46"
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - Ubuntu
+        - Debian
+        - Other Linux
+        - HiveOS
+        - Windows (WSL2)
+    validations:
+      required: true
+  - type: input
+    id: os_version
+    attributes:
+      label: OS version
+      description: "Ubuntu / Debian version (`lsb_release -d`), HiveOS version, or Windows version and build."
+    validations:
+      required: true
+  - type: input
+    id: gpu
+    attributes:
+      label: GPU model(s) and count
+      placeholder: "1x RTX 3080 10 GB"
+    validations:
+      required: true
+  - type: input
+    id: driver
+    attributes:
+      label: NVIDIA driver version
+      description: "The \"Driver Version\" shown by `nvidia-smi`."
+    validations:
+      required: true
+  - type: input
+    id: memory
+    attributes:
+      label: VRAM and host RAM
+      placeholder: "10 GB VRAM, 16 GB RAM"
+    validations:
+      required: true
+  - type: dropdown
+    id: install
+    attributes:
+      label: How it was installed
+      options:
+        - One-click install command (Linux)
+        - Linux package unpacked by hand
+        - Windows zip (TheNewMiner.bat)
+        - HiveOS flight sheet
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: status
+    attributes:
+      label: Output of ./thenewminer --status
+      description: "Windows: `TheNewMiner.bat status`. HiveOS: run it in `/hive/miners/custom/thenewminer`."
+      render: shell
+  - type: textarea
+    id: logs
+    attributes:
+      label: Last log lines
+      description: "About the last 50 lines of `thenewminer/.miner/thenewminer.log` (Windows: `TheNewMiner.bat logs`; HiveOS: `/var/log/miner/custom/custom.log`)."
+      render: shell
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy
+      options:
+        - label: I removed my pool password (and my wallet address, if I prefer) from everything I pasted.
+          required: true

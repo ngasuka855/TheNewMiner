@@ -8,34 +8,54 @@ TheNewMiner ist ein GPU-Miner für **TensorCash**. Er läuft auf NVIDIA GeForce 
 **10 GB VRAM oder mehr** und mint auf dem Pool **`tsc-wss.the-new.win`**, der fest eingebaut ist: Sie müssen keine
 Pool-Adresse eingeben, und die Verbindung erfolgt direkt.
 
-Aktuelle Version: **v0.1.45**
+Aktuelle Version: **v0.1.46** · Pool-Website: [tsc.the-new.win](https://tsc.the-new.win/#/home)
 
-## Neu in v0.1.45
+## Bevor Sie beginnen: Pool-Konto anlegen
 
-- **Eine klare Meldung, wenn der Pool Ihre Wallet oder Ihr Passwort ablehnt.** Der Miner sagt das in einer Zeile und
-  beendet sich, statt es erneut zu versuchen; `--status` zeigt den Grund. Prüfen Sie Wallet und Passwort und starten Sie
-  dann erneut mit `-u` und `-p`.
-- **Ihre Wallet und Ihr Passwort sind nicht mehr in `ps`** oder in den Prozesslisten anderer Benutzer sichtbar.
-- **`./thenewminer --status`** zeigt, ob er mint, seit wann, die letzte Rate und die akzeptierten / abgelehnten Shares.
-- **HiveOS-Unterstützung (experimentell):** ein HiveOS-Custom-Miner-Paket und ein importierbares Flight Sheet (siehe den Abschnitt HiveOS unten).
-- **Sichere Upgrades:** Die neue Version startet nicht, solange die alte noch mint (sie fordert Sie auf, diese zuerst zu
-  beenden); nach `--stop` installiert sie ihre Programmdateien selbst neu und behält Ihre Einstellungen und das Modell.
-- **`--background` meldet nicht mehr „gestartet“, wenn der Miner sofort wieder endet**; es zeigt stattdessen den Grund.
-- **Docker und kleiner gemeinsamer Speicher:** Wenn der In-Memory-Ordner zu klein ist (Dockers Standard ist 64 MiB)
-  oder das Ausführen von Programmen nicht erlaubt, verwendet der Miner stattdessen `thenewminer/.miner/run/` auf der
-  Festplatte und weist darauf hin.
-- **Pool-Passwörter dürfen jetzt jedes sichtbare Zeichen enthalten** (auch Satzzeichen und nicht-englische Buchstaben):
-  6–128 Zeichen, keine Leerzeichen.
-- Mehr Linux-Systeme: Das Installationsprogramm prüft jetzt, was es braucht (glibc 2.34 oder neuer), statt nur einige
-  wenige Ubuntu-Versionen zu akzeptieren.
+Zum Minen brauchen Sie ein Pool-Konto: Ihre TSC-Auszahlungsadresse (Wallet) und ein Pool-Passwort, das Sie auf der
+Pool-Website wählen. Die Website hat eine englische Version (über ihr Sprachmenü).
+
+1. Öffnen Sie [tsc.the-new.win](https://tsc.the-new.win/#/home) und gehen Sie zu **Start mining** (开始挖矿).
+2. Geben Sie unter **1. Bind Wallet** Ihre **TSC payout address** ein (`tc1...`; prüfen Sie sie sorgfältig:
+   Mining-Einnahmen, die an eine falsche Adresse gehen, lassen sich nicht zurückholen), wählen Sie ein **Pool Password**
+   (6–128 Zeichen) und geben Sie es unter **Confirm Password** erneut ein.
+3. Klicken Sie auf **Apply to join pool**. Die Seite bestätigt, dass die Wallet gebunden ist; das Konto funktioniert
+   sofort.
+4. Verwenden Sie dieselbe Wallet und dasselbe Passwort im Miner: `-u <YOUR_WALLET> -p '<YOUR_POOL_PASSWORD>'` unter
+   Linux, die Fragen von `TheNewMiner.bat` unter Windows oder das Flight Sheet unter HiveOS. Etwa 3–5 Minuten nach dem
+   Start erscheint Ihr Rig unter **My Miners** auf der Pool-Website.
+
+Der Pool kann ein vergessenes Pool-Passwort nicht wiederherstellen, und die Auszahlungsadresse lässt sich später nicht
+ändern. Das Pool-Passwort ist nicht der private Schlüssel Ihrer Wallet: Geben Sie Ihren privaten Schlüssel niemals an
+jemanden weiter.
+
+## Neu in v0.1.46
+
+- **Weniger Fehlschläge beim ersten Start auf Karten der RTX-30-Serie und unter HiveOS.** Die einmalige GPU-Prüfung
+  verwendet jetzt GPU-Code, der für jede unterstützte Kartenfamilie vorkompiliert ist, und läuft bereits einmal während
+  der Installation; der GPU-Kompilier-Cache bleibt zwischen Starts und Upgrades erhalten. Überschreitet die Prüfung auf
+  einer Karte der RTX-30-Serie trotzdem das Zeitlimit, erledigt der Miner diesen Schritt stattdessen auf der CPU und
+  mint weiter. Kann die Konfiguration der Karte nicht vorbereitet werden, nennt der Miner den Grund in einer
+  `Reason:`-Zeile (Exit-Code 78).
+- **HiveOS:** Kann der Miner bei einem ersten Start seine Konfiguration für die GPU nicht vorbereiten (Exit-Code 78),
+  wartet das Rig jetzt und versucht es mit wachsenden Pausen (eine bis zehn Minuten) erneut, statt alle paar Sekunden
+  neu zu starten.
+- **Gleichmäßigere Wellen:** Wenn sich der Checkpoint des Pools mitten in einer Welle ändert, wird die Arbeit der
+  nächsten Welle jetzt im Hintergrund neu vorbereitet. Auf einer RTX 5090 entfielen dadurch die Wartezeiten in diesem
+  Moment (+0.3% dauerhafte Rate, identische Ergebnisse).
+- **Nach einem abgelehnten Passwort bleibt nichts im Speicher:** `--status` und `--logs` nach einem Stopp lassen die
+  entpackten Programmdateien (etwa 1.5 GB) nicht mehr im Speicher zurück.
+- **Haben Sie das Modell bereits?** Kopieren Sie es, statt es erneut herunterzuladen: siehe den Abschnitt unten.
+
+Die Änderungen von v0.1.45 stehen in [`RELEASE-NOTES-v0.1.45.md`](RELEASE-NOTES-v0.1.45.md).
 
 ## Download
 
 | Datei | Für | SHA-256 |
 |---|---|---|
-| [`TheNewMiner-v0.1.45-linux-x86_64-sealed.tar.xz`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.45/TheNewMiner-v0.1.45-linux-x86_64-sealed.tar.xz) | Linux x86_64 | `6281bf489fae843551114f09ead5498d3e47af33a07e4cfdfbdc0a5d6bdbafbb` |
-| [`TheNewMiner-v0.1.45-windows-wsl2-r1.zip`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.45/TheNewMiner-v0.1.45-windows-wsl2-r1.zip) | Windows 10 / 11 (läuft über WSL2) | `90732441b0dc67de84809d9bf3bda4441c0bf7cd9a52fefb95d29242ad7b15e7` |
-| [`SHA256SUMS`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.45/SHA256SUMS) | Prüfsummen aller Pakete | |
+| [`TheNewMiner-v0.1.46-linux-x86_64-sealed.tar.xz`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.46/TheNewMiner-v0.1.46-linux-x86_64-sealed.tar.xz) | Linux x86_64 | `3585360e80993176475b6e400258888b4ddf8cb130ff97574e74e15cf1e248a8` |
+| [`TheNewMiner-v0.1.46-windows-wsl2-r1.zip`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.46/TheNewMiner-v0.1.46-windows-wsl2-r1.zip) | Windows 10 / 11 (läuft über WSL2) | `dd9cb395e4012bfb81a5b9f0a1fdfd196955b781265a4a4e0d67266bd67b6a9e` |
+| [`SHA256SUMS`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.46/SHA256SUMS) | Prüfsummen aller Pakete | |
 
 Das Windows-Zip ist ein Komplettpaket: Es enthält bereits den Linux-Miner, Sie brauchen also nur das Zip.
 
@@ -52,20 +72,21 @@ shasum -a 256 -c --ignore-missing SHA256SUMS
 
 ```bat
 :: Windows (Eingabeaufforderung): Ausgabe mit dem SHA-256 in der Tabelle oben vergleichen
-certutil -hashfile TheNewMiner-v0.1.45-windows-wsl2-r1.zip SHA256
+certutil -hashfile TheNewMiner-v0.1.46-windows-wsl2-r1.zip SHA256
 ```
 
 Jede Datei muss `OK` melden (unter Windows: dieselben 64 Zeichen wie in der Tabelle). Wenn sie nicht übereinstimmt, verwenden Sie sie nicht.
 
 ## Installation mit einem Klick (Linux)
 
-Ersetzen Sie `<YOUR_WALLET>`, `<YOUR_POOL_PASSWORD>` und `<RIG_NAME>` (einschließlich der `<` `>`) am Ende dieses Befehls
-und fügen Sie ihn dann in ein Terminal ein. Er lädt das Linux-Paket und die `SHA256SUMS` dieser Version herunter (mit
+Legen Sie zuerst Ihr Pool-Konto an (siehe „Bevor Sie beginnen“ oben). Ersetzen Sie dann `<YOUR_WALLET>`,
+`<YOUR_POOL_PASSWORD>` und `<RIG_NAME>` (einschließlich der `<` `>`) am Ende dieses Befehls durch Ihre Wallet, Ihr
+Pool-Passwort und einen Namen für dieses Rig, und fügen Sie ihn dann in ein Terminal ein. Er lädt das Linux-Paket und die `SHA256SUMS` dieser Version herunter (mit
 `curl`, oder mit `wget`, wenn kein `curl` vorhanden ist), prüft den SHA-256, entpackt den Miner nach `~/thenewminer` und
 startet ihn im Hintergrund:
 
 ```bash
-mkdir -p ~/thenewminer-download && cd ~/thenewminer-download && V=v0.1.45 && P=TheNewMiner-$V-linux-x86_64-sealed.tar.xz && U=https://github.com/ngasuka855/TheNewMiner/raw/$V && rm -f "$P" SHA256SUMS && if command -v curl >/dev/null 2>&1; then curl -fL -o "$P" "$U/$P" && curl -fL -o SHA256SUMS "$U/SHA256SUMS"; else wget -O "$P" "$U/$P" && wget -O SHA256SUMS "$U/SHA256SUMS"; fi && sha256sum -c --ignore-missing SHA256SUMS && tar -xJf "$P" -C ~ && cd ~/thenewminer && ./thenewminer -u <YOUR_WALLET> -p '<YOUR_POOL_PASSWORD>' -w <RIG_NAME> --background
+mkdir -p ~/thenewminer-download && cd ~/thenewminer-download && V=v0.1.46 && P=TheNewMiner-$V-linux-x86_64-sealed.tar.xz && U=https://github.com/ngasuka855/TheNewMiner/raw/$V && rm -f "$P" SHA256SUMS && if command -v curl >/dev/null 2>&1; then curl -fL -o "$P" "$U/$P" && curl -fL -o SHA256SUMS "$U/SHA256SUMS"; else wget -O "$P" "$U/$P" && wget -O SHA256SUMS "$U/SHA256SUMS"; fi && sha256sum -c --ignore-missing SHA256SUMS && tar -xJf "$P" -C ~ && cd ~/thenewminer && ./thenewminer -u <YOUR_WALLET> -p '<YOUR_POOL_PASSWORD>' -w <RIG_NAME> --background
 ```
 
 Er bricht beim ersten fehlgeschlagenen Schritt ab: Ein Downloadfehler oder ein nicht übereinstimmender SHA-256 startet
@@ -82,7 +103,7 @@ erneut heruntergeladen).
 ## Linux
 
 ```bash
-tar -xJf TheNewMiner-v0.1.45-linux-x86_64-sealed.tar.xz
+tar -xJf TheNewMiner-v0.1.46-linux-x86_64-sealed.tar.xz
 cd thenewminer
 ./thenewminer -u <YOUR_WALLET> -p '<YOUR_POOL_PASSWORD>' -w rig-01 --background
 ```
@@ -105,7 +126,7 @@ cd thenewminer
 - Die Einstellungen werden in `thenewminer/.miner/` gespeichert (die Datei mit dem Passwort ist nur für Sie lesbar). Wallet
   und Passwort werden sofort von der Befehlszeile entfernt, sodass sie in `ps` nicht erscheinen (Ihre Shell kann den
   Befehl dennoch in ihrem Verlauf speichern).
-- Wenn der Pool die Wallet oder das Passwort ablehnt (oder das Konto noch nicht freigegeben hat), meldet der Miner das und
+- Wenn der Pool die Wallet oder das Passwort ablehnt, meldet der Miner das und
   beendet sich. Prüfen Sie beides und starten Sie erneut mit `-u` und `-p`.
 - Der erste Start lädt das Modell herunter (etwa 8.1 GiB, einmalig), installiert die GPU-Engine für Ihre Karte, führt
   einen Selbsttest auf der Karte aus und beginnt dann zu minen. Zeilen wie `[ RATE] ... N/s` bedeuten, dass gemint wird.
@@ -122,7 +143,7 @@ cd thenewminer
 
 ## Windows (ein Klick)
 
-1. Entpacken Sie die gesamte `TheNewMiner-v0.1.45-windows-wsl2-r1.zip` (Rechtsklick › Alle extrahieren...) an einen
+1. Entpacken Sie die gesamte `TheNewMiner-v0.1.46-windows-wsl2-r1.zip` (Rechtsklick › Alle extrahieren...) an einen
    beliebigen Ort: beliebiger Ordner, beliebiges Laufwerk; Pfade mit Leerzeichen oder chinesischen Zeichen sind kein
    Problem. Nicht aus der Zip-Ansicht heraus starten.
 2. Doppelklicken Sie auf **`TheNewMiner.bat`**.
@@ -162,12 +183,12 @@ Tägliche Befehle (öffnen Sie eine Eingabeaufforderung im entpackten Ordner):
 
 ## HiveOS (experimentell)
 
-Die HiveOS-Unterstützung ist neu in v0.1.45 und **experimentell**. Sie verwendet das unten stehende
-HiveOS-Custom-Miner-Paket.
+Die HiveOS-Unterstützung ist **experimentell** (seit v0.1.45, die auf einem echten HiveOS-Rig lief; die Änderungen am
+ersten Start in v0.1.46 liefen noch auf keinem). Sie verwendet das unten stehende HiveOS-Custom-Miner-Paket.
 
 | Datei | SHA-256 |
 |---|---|
-| [`thenewminer-0.1.45.tar.gz`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.45/thenewminer-0.1.45.tar.gz) | `90576efd388ceeca4e456b62b568f267465320913a07c9f9736f42363b1701dc` |
+| [`thenewminer-0.1.46.tar.gz`](https://github.com/ngasuka855/TheNewMiner/raw/v0.1.46/thenewminer-0.1.46.tar.gz) | `2284c258176e6b372bf56947a343116688e773dee2d479a7f5f125ad9f0a1915` |
 
 Schnelleinrichtung (Flight Sheet importieren):
 
@@ -187,7 +208,7 @@ Stattdessen manuell einrichten: Erstellen Sie ein Flight Sheet mit Coin `TSC`, W
 | Feld | Wert |
 |---|---|
 | Miner name | `thenewminer` (wird aus der Installations-URL übernommen) |
-| Installation URL | `https://github.com/ngasuka855/TheNewMiner/raw/v0.1.45/thenewminer-0.1.45.tar.gz` |
+| Installation URL | `https://github.com/ngasuka855/TheNewMiner/raw/v0.1.46/thenewminer-0.1.46.tar.gz` |
 | Hash algorithm | leer lassen |
 | Wallet and worker template | `%WAL%.%WORKER_NAME%` |
 | Pool URL | `tsc-wss.the-new.win` (wird ignoriert: der Pool ist fest eingebaut) |
@@ -205,28 +226,74 @@ Stattdessen manuell einrichten: Erstellen Sie ein Flight Sheet mit Coin `TSC`, W
   HiveOS ihn erneut startet: Korrigieren Sie das Flight Sheet und wenden Sie es an (das startet den Miner sofort neu).
 - Logs: der Miner-Bildschirm in HiveOS (`miner` in der Shell des Rigs) oder `/var/log/miner/custom/custom.log`.
 - **Upgrade:** Ändern Sie beide Versionsnummern in der Installations-URL (zum Beispiel
-  `.../raw/v0.1.46/thenewminer-0.1.46.tar.gz`) und wenden Sie das Flight Sheet an. HiveOS installiert nur, wenn sich der
+  `.../raw/vX.Y.Z/thenewminer-X.Y.Z.tar.gz`) und wenden Sie das Flight Sheet an. HiveOS installiert nur, wenn sich der
   Dateiname in der URL ändert.
-- **Der erste Start dauert eine Weile:** Nach dem Download des Modells kann auf Karten der RTX-30-Serie eine einmalige
-  GPU-Prüfung auf einer langsamen Rig-Festplatte in ein Timeout laufen; HiveOS startet den Miner dann von selbst neu,
-  zwei- oder dreimal (etwa 8 Minuten). Lassen Sie ihn in Ruhe; danach mint er.
-- **Haben Sie das Modell bereits?** Kopieren Sie `Qwen3-8B-Q8_0-full-v2.gguf` (etwa 8.1 GiB, genau mit diesem
-  Dateinamen) vor dem ersten Start nach `/home/user/` auf dem Rig: Der Miner findet die Datei, prüft ihren SHA-256 und
-  verwendet sie, statt sie erneut herunterzuladen.
+- **Der erste Start** lädt das Modell herunter und installiert die GPU-Engine, was einige Minuten dauert. Kann der Miner
+  danach seine Konfiguration für die GPU nicht vorbereiten, nennt das Log den Grund in einer `Reason:`-Zeile, und HiveOS
+  versucht es mit wachsenden Pausen (eine bis zehn Minuten) erneut.
+- **Haben Sie das Modell bereits?** Kopieren Sie es vor dem ersten Start nach `/home/user/` auf dem Rig (siehe den
+  nächsten Abschnitt).
 
-**Wenn das Rig GitHub nicht erreichen kann:** Laden Sie `thenewminer-0.1.45.tar.gz` auf einem PC herunter (prüfen Sie
+**Wenn das Rig GitHub nicht erreichen kann:** Laden Sie `thenewminer-0.1.46.tar.gz` auf einem PC herunter (prüfen Sie
 den SHA-256 in der Tabelle oben), kopieren Sie die Datei auf das Rig und entpacken Sie sie dort, wo HiveOS
 benutzerdefinierte Miner ablegt. Wenden Sie dann das Flight Sheet wie gewohnt an: HiveOS meldet „Already installed“ und
-lädt das Paket nicht herunter. Behalten Sie den Dateinamen exakt als `thenewminer-0.1.45.tar.gz` bei (ein Browser hängt
+lädt das Paket nicht herunter. Behalten Sie den Dateinamen exakt als `thenewminer-0.1.46.tar.gz` bei (ein Browser hängt
 eventuell „ (1)“ an) und lassen Sie die Installations-URL im Flight Sheet unverändert: HiveOS vergleicht diesen Namen.
 
 ```bash
 # auf dem PC
-scp thenewminer-0.1.45.tar.gz user@<RIG_IP>:/tmp/
+scp thenewminer-0.1.46.tar.gz user@<RIG_IP>:/tmp/
 # auf dem Rig, als root (Hive Shell oder SSH und dann sudo -i)
 mkdir -p /hive/miners/custom/downloads
-mv /tmp/thenewminer-0.1.45.tar.gz /hive/miners/custom/downloads/
-cd /hive/miners/custom && tar -xzf downloads/thenewminer-0.1.45.tar.gz
+mv /tmp/thenewminer-0.1.46.tar.gz /hive/miners/custom/downloads/
+cd /hive/miners/custom && tar -xzf downloads/thenewminer-0.1.46.tar.gz
+```
+
+## Haben Sie das Modell bereits? Kopieren Sie es
+
+Der Miner braucht eine einzige 8.1 GiB große Modelldatei: `Qwen3-8B-Q8_0-full-v2.gguf` (`8709518112` Bytes, SHA-256
+`408b955510e196121c1c375201744783b5c9a43c7956d73fc78df54c66e883d6`). Liegt sie bereits auf diesem Rechner oder auf einem
+anderen Computer in Ihrem Netzwerk, kopieren Sie sie, statt sie erneut herunterzuladen.
+
+Bevor er irgendetwas herunterlädt, sucht der Miner die Datei anhand ihres genauen Namens und ihrer genauen Größe: in
+seinem eigenen Modellordner, in früheren TheNewMiner-Ordnern, in Ihrem Home-Ordner (und ein oder zwei Ordnerebenen
+darunter oder in einem `models`-Ordner dort), in den Home-Ordnern unter `/home`, in `/data`, `/mnt/*`,
+`/media/*`, `/opt`, `/srv`, `/workspace`, `/var/lib` sowie in den Caches von Hugging Face / ModelScope. Findet er dort
+nichts, durchsucht er bis zu 20 Sekunden lang diese Ordner auf derselben Festplatte (andere eingehängte Festplatten
+werden nur nach dem Namen geprüft) nach einer beliebigen `.gguf`-Datei mit genau dieser Größe. Eine gefundene Datei wird
+**nur verwendet, wenn ihr SHA-256 übereinstimmt**; dann verlinkt er sie (gleiche Festplatte) oder kopiert sie in seinen
+eigenen Modellordner, sodass jede spätere Version sie sofort findet. Sie können die Datei auch direkt angeben:
+`./thenewminer --model /path/to/Qwen3-8B-Q8_0-full-v2.gguf`.
+
+**Linux:** Kopieren Sie die Datei in Ihren Home-Ordner und starten Sie den Miner dann wie gewohnt. Von einem Mac oder PC
+im selben Netzwerk aus (Windows 10 und 11 haben `scp` in PowerShell) ersetzen Sie `user` und `<MINER_IP>` durch den
+Login und die Adresse Ihres Miners:
+
+```bash
+# auf dem Miner selbst
+cp /path/to/Qwen3-8B-Q8_0-full-v2.gguf ~/
+# oder von einem anderen Computer
+scp Qwen3-8B-Q8_0-full-v2.gguf user@<MINER_IP>:~/
+```
+
+**HiveOS:** Kopieren Sie die Datei nach `/home/user/` auf dem Rig (der SSH-Login von HiveOS ist `user`) und wenden Sie
+dann das Flight Sheet an. Der Miner findet sie dort, prüft sie und legt sie neben dem Paket ab
+(`/hive/miners/custom/.thenewminer-models`), sodass eine neue Version sie nie wieder herunterlädt. Die Festplatte von
+HiveOS ist klein: Führen Sie zuerst `disk-expand` aus, wenn `df -h /hive/miners` weniger als 12 GB freien Speicher
+anzeigt.
+
+```bash
+scp Qwen3-8B-Q8_0-full-v2.gguf user@<RIG_IP>:/home/user/
+```
+
+**Windows:** Nachdem das erste `setup` die WSL-Distribution von TheNewMiner angelegt hat, kopieren Sie die Datei aus
+einer Eingabeaufforderung hinein (ändern Sie `D:\Models` in den Ort Ihrer Kopie). Hatte der Download bereits begonnen,
+schließen Sie das Fenster, führen Sie diese Befehle aus und starten Sie TheNewMiner erneut: Er findet die Kopie und
+überspringt den Download. Das Kopieren dauert einige Minuten und zeigt keinen Fortschritt an.
+
+```bat
+wsl -d TheNewMiner -u root -- mkdir -p ~/thenewminer/models
+wsl -d TheNewMiner -u root -- cp /mnt/d/Models/Qwen3-8B-Q8_0-full-v2.gguf ~/thenewminer/models/
 ```
 
 ## Wallet, Pool-Passwort oder Worker-Namen ändern
@@ -337,6 +404,8 @@ Tests auf einem echten Pool mit unseren Test-Rigs (eine GPU pro Rechner). A = ak
 
 | Datum | Karte | Betriebssystem | Paket | Hashrate | A / R |
 |---|---|---|---|---|---|
+| 2026-10-23 | RTX 5090 | Linux | v0.1.46 Release-Build | 95.41 N/s (stabiles Mining, 12 min; 91.70 inklusive Job-Wechsel) | 10 / 0 (+1 stale; 0 ungültig) |
+| 2026-10-23 | RTX 4090 | Linux | v0.1.46 Release-Build | 66.23 N/s (Median, 10 min) | 2 / 0 |
 | 2026-10-23 | RTX 4090 | Linux | v0.1.45 Release-Build | 65.42 N/s (stabiles Mining, 16 min; 62.35 inklusive Job-Wechsel) | 13 / 0 (0 ungültig) |
 | 2026-10-23 | RTX 5090 | Linux | v0.1.45 Release-Build | 94.18 N/s (stabiles Mining; 92.24 inklusive Job-Wechsel) | 17 / 0 (0 ungültig) |
 | 2026-10-23 | RTX 4090 | Linux | v0.1.44 sealed-r4 | 65.58 N/s (Median, 16 min) | 10 / 0 |
@@ -377,13 +446,21 @@ Der erste Start lädt das ~8.1 GiB große Modell herunter und führt einen GPU-S
 richtet er eventuell auch WSL2 ein. Das passiert nur einmal. Spätere Starts beginnen viel schneller mit dem Mining.
 
 **Der Miner meldet, dass der Pool die Wallet / das Passwort abgelehnt hat.**
-Prüfen Sie die Wallet-Adresse und das Pool-Passwort (und ob der Pool Ihr Konto freigegeben hat) und starten Sie dann
+Prüfen Sie die Wallet-Adresse und das Pool-Passwort (das Konto muss auf der Website des Pools existieren) und starten Sie dann
 erneut: Linux `./thenewminer -u <YOUR_WALLET> -p '<YOUR_POOL_PASSWORD>'`, Windows `TheNewMiner.bat setup`. Bei falschen
 Zugangsdaten versucht es der Miner nicht von selbst erneut.
 
 **Mint er? Wo sind die Logs?**
 Linux: `./thenewminer --status`, `./thenewminer --logs` oder die Datei `thenewminer/.miner/thenewminer.log`.
 Windows: `TheNewMiner.bat status` und `TheNewMiner.bat logs`.
+
+## Problem melden
+
+Eröffnen Sie ein Issue unter [GitHub Issues](https://github.com/ngasuka855/TheNewMiner/issues/new/choose) und füllen Sie
+das Fehlerberichtsformular aus: die TheNewMiner-Version, Ihr System, GPU-Modell(e) und Treiber, die Ausgabe von
+`./thenewminer --status` und die letzten Logzeilen. Issues sind öffentlich: **Posten Sie niemals Ihr Pool-Passwort oder
+den privaten Schlüssel Ihrer Wallet**, und entfernen Sie das Passwort (und, wenn Sie möchten, Ihre Wallet-Adresse) aus
+allem, was Sie einfügen.
 
 ## Sicherheitshinweis
 
