@@ -1,5 +1,5 @@
 {
-  "name": "TheNewMiner v0.1.46",
+  "name": "TheNewMiner v0.1.47",
   "isFavorite": false,
   "items": [
     {
@@ -10,7 +10,7 @@
       "miner_alt": "thenewminer",
       "miner_config": {
         "miner": "thenewminer",
-        "install_url": "https://github.com/ngasuka855/TheNewMiner/raw/v0.1.46/thenewminer-0.1.46.tar.gz",
+        "install_url": "https://github.com/ngasuka855/TheNewMiner/raw/v0.1.47/thenewminer-0.1.47.tar.gz",
         "url": "tsc-wss.the-new.win",
         "template": "<YOUR_WALLET>.%WORKER_NAME%",
         "pass": "<YOUR_POOL_PASSWORD>",

@@ -13,7 +13,7 @@ body:
     attributes:
       label: TheNewMiner version
       description: "The package you run, e.g. the file name you downloaded, or the first line of `./thenewminer --status`."
-      placeholder: "v0.1.46"
+      placeholder: "v0.1.47"
     validations:
       required: true
   - type: dropdown

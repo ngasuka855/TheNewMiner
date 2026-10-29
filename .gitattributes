@@ -2,5 +2,6 @@
 *.zip binary
 *.tar.gz binary
 SHA256SUMS text eol=lf
-*.sha256 text eol=lf
 *.md text eol=lf
+*.jpg binary
+*.png binary

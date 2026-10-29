@@ -3,6 +3,9 @@ contact_links:
   - name: Pool website (account, wallet, pool password, payouts)
     url: https://tsc.the-new.win/#/home
     about: Create your pool account, check your rigs under "My Miners", change your pool password.
-  - name: README and FAQ
-    url: https://github.com/ngasuka855/TheNewMiner#faq
-    about: Installation, upgrades, proxy, drivers and answers to common questions.
+  - name: Guide and FAQ
+    url: https://github.com/ngasuka855/TheNewMiner/blob/main/docs/GUIDE.md
+    about: Installation, upgrades, proxy, drivers, what to do when it does not mine, and answers to common questions.
+  - name: Windows troubleshooting
+    url: https://github.com/ngasuka855/TheNewMiner/blob/main/docs/WINDOWS-TROUBLESHOOTING.md
+    about: DNS inside WSL, a package on a Windows drive, low speed on 10 GB cards, the clock.
